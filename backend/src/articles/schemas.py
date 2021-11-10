@@ -58,3 +58,37 @@ class ChangeArticle(BaseModel):
 
 class UpdateArticle(BaseModel):
     article: ChangeArticle
+
+
+class Comment(BaseModel):
+    id: int
+    createdAt: str = datetime.now().isoformat()
+    updatedAt: str = datetime.now().isoformat()
+    body: str
+    author: ProfileUser
+
+    class Config:
+        orm_mode = True
+
+
+class GetCommentsResponse(BaseModel):
+    comments: List[Comment]
+
+
+class CreateCommentBody(BaseModel):
+    body: str
+
+
+class CreateComment(BaseModel):
+    comment: CreateCommentBody
+
+
+class GetCommentResponse(BaseModel):
+    comment: Comment
+
+
+class GetTags(BaseModel):
+    tags: List[str]
+
+    class Config:
+        orm_mode = True

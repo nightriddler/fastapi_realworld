@@ -15,9 +15,12 @@ class User(Base):
     image = Column(String(250))
     password = Column(String(250))
 
-    articles = relationship('Article', cascade='all,delete', backref='authors')
-    comments = relationship('Comment', cascade='all,delete', backref='authors')
-    favorites = relationship('Favorite', cascade='all,delete', backref='users')
+    articles = relationship(
+        'Article', cascade='all,delete-orphan', backref='authors')
+    comments = relationship(
+        'Comment', cascade='all,delete-orphan', backref='authors')
+    favorites = relationship(
+        'Favorite', cascade='all,delete-orphan', backref='users')
 
     def __repr__(self):
         return f'User(email={self.email},username={self.username})'
@@ -33,11 +36,11 @@ class Follow(Base):
     followers = relationship(
         'User',
         foreign_keys=[user],
-        backref=backref('follower_user', cascade='all,delete'))
+        backref=backref('follower_user', cascade='all,delete-orphan'))
     followings = relationship(
         'User',
         foreign_keys=[author],
-        backref=backref('following_user', cascade='all,delete'))
+        backref=backref('following_user', cascade='all,delete-orphan'))
 
     def __repr__(self):
         return f'Follow(user={self.user},author={self.author})'
@@ -67,7 +70,7 @@ class Article(Base):
 
     tag = relationship('Tag', secondary=article_tag_table)
     favorite = relationship(
-        'Favorite', cascade='all,delete', backref='articles')
+        'Favorite', cascade='all,delete-orphan', backref='articles')
 
     def __repr__(self):
         return f'Article(slug={self.slug},title={self.title})'
@@ -88,7 +91,8 @@ class Favorite(Base):
 
     id = Column(Integer, primary_key=True)
     user = Column(String(50), ForeignKey('users.username'))
-    article = Column(Integer, ForeignKey('articles.id'))
+    article = Column(String(100), ForeignKey('articles.slug'))
+    # article = Column(Integer, ForeignKey('articles.id'))
 
     def __repr__(self):
         return f'Favorite(article={self.article},user={self.user})'
@@ -100,7 +104,7 @@ class Comment(Base):
     id = Column(Integer, primary_key=True)
     body = Column(Text)
     author = Column(Integer, ForeignKey('users.id'))
-    article = Column(Integer, ForeignKey('articles.id'))
+    article = Column(String(100), ForeignKey('articles.slug'))
 
     def __repr__(self):
         return f'Comment(article={self.article},author={self.author})'

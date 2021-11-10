@@ -14,7 +14,20 @@ router_article = APIRouter()
 
 
 @router_article.get(
-    '/articles/',
+    '/articles/feed',
+    response_model=schemas.GetArticles,
+    tags=['Articles'])
+def get_recent_articles_from_users_you_follow(
+        limit: Optional[int] = 20,
+        offset: Optional[int] = 0,
+        db: Session = Depends(get_db),
+        user: models.User = Depends(get_curr_user_by_token)):
+    articles = crud.feed_article(db, user, limit, offset)
+    return schemas.GetArticles(articles=articles, articlesCount=len(articles))
+
+
+@router_article.get(
+    '/articles',
     response_model=schemas.GetArticles,
     tags=['Articles']
 )
@@ -26,15 +39,11 @@ def get_articles(
         offset: Optional[int] = 0,
         db: Session = Depends(get_db)):
     articles = crud.select_articles(db, tag, author, favorited, limit, offset)
-
-    for article in articles:
-        article.author = article.authors
-        article.tagList = [tag.name for tag in article.tag]
     return schemas.GetArticles(articles=articles, articlesCount=len(articles))
 
 
 @router_article.post(
-    '/articles/',
+    '/articles',
     response_model=schemas.CreateArticleResponse,
     status_code=201,
     tags=['Articles']
@@ -45,14 +54,13 @@ def set_up_article(
         user: models.User = Depends(get_curr_user_by_token)):
     article = crud.create_article(db, article_data, user)
     article.author = user
-    article.tagList = [tag.name for tag in article.tag]
     # article.favorited
     # article.favoritesCount
     return schemas.CreateArticleResponse(article=article)
 
 
 @router_article.get(
-    '/articles/{slug}/',
+    '/articles/{slug}',
     response_model=schemas.GetArticle,
     tags=['Articles'])
 def get_article(slug: str, db: Session = Depends(get_db)):
@@ -61,7 +69,7 @@ def get_article(slug: str, db: Session = Depends(get_db)):
 
 
 @router_article.put(
-    '/articles/{slug}/',
+    '/articles/{slug}',
     response_model=schemas.GetArticle,
     tags=['Articles'])
 def change_article(
@@ -74,7 +82,7 @@ def change_article(
 
 
 @router_article.delete(
-    '/articles/{slug}/',
+    '/articles/{slug}',
     response_description='OK',
     tags=['Articles'])
 def remove_article(
@@ -83,3 +91,75 @@ def remove_article(
         token: str = Depends(authorize.check_token)):
     crud.delete_article(db, slug)
     return Response(status_code=status.HTTP_200_OK)
+
+
+@router_article.get(
+    '/articles/{slug}/comments',
+    response_model=schemas.GetCommentsResponse,
+    tags=['Comments'])
+def select_comment(
+        slug: str,
+        db: Session = Depends(get_db)):
+    comments = crud.get_comments(db, slug)
+    return schemas.GetCommentsResponse(comments=comments)
+
+
+@router_article.post(
+    '/articles/{slug}/comments',
+    response_model=schemas.GetCommentResponse,
+    tags=['Comments'])
+def post_comment(
+        slug: str,
+        comment: schemas.CreateComment,
+        db: Session = Depends(get_db),
+        user: models.User = Depends(get_curr_user_by_token)):
+    comment = crud.create_comment(db, comment, slug, user)
+    # comment.article = slug
+    comment.author = user
+    return schemas.GetCommentResponse(comment=comment)
+
+
+@router_article.delete(
+    '/articles/{slug}/comments/{id}',
+    tags=['Comments'])
+def remove_comment(
+        slug: str,
+        id: str,
+        db: Session = Depends(get_db),
+        user: models.User = Depends(get_curr_user_by_token)):
+    crud.delete_comment(db, slug, id, user)
+    return Response(status_code=status.HTTP_200_OK)
+
+
+@router_article.post(
+    '/articles/{slug}/favorite',
+    response_model=schemas.CreateArticleResponse,
+    tags=['Favorites'])
+def post_favorite(
+        slug: str,
+        db: Session = Depends(get_db),
+        user: models.User = Depends(get_curr_user_by_token)):
+    article = crud.create_favorite(db, slug, user)
+    return schemas.CreateArticleResponse(article=article)
+
+
+@router_article.delete(
+    '/articles/{slug}/favorite',
+    response_model=schemas.CreateArticleResponse,
+    tags=['Favorites'])
+def remove_favorite(
+        slug: str,
+        db: Session = Depends(get_db),
+        user: models.User = Depends(get_curr_user_by_token)):
+    crud.delete_favorite(db, slug, user)
+    article = crud.get_single_article(db, slug)
+    return schemas.CreateArticleResponse(article=article)
+
+
+@router_article.get(
+    '/tags',
+    response_model=schemas.GetTags,
+    tags=['default'])
+def get_tags(db: Session = Depends(get_db)):
+    tags = crud.select_tags(db)
+    return schemas.GetTags(tags=tags)

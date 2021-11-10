@@ -11,7 +11,7 @@ router_user = APIRouter()
 
 
 @router_user.post(
-    '/users/',
+    '/users',
     response_model=schemas.UserResponse,
     status_code=201,
     tags=['User and Authentication']
@@ -28,7 +28,7 @@ def register_user(
 
 
 @router_user.post(
-    '/users/login/',
+    '/users/login',
     response_model=schemas.UserResponse,
     tags=['User and Authentication']
 )
@@ -47,7 +47,7 @@ def authentication(
 
 
 @router_user.get(
-    '/user/',
+    '/user',
     response_model=schemas.UserResponse,
     tags=['User and Authentication'])
 def current_user(
@@ -56,7 +56,7 @@ def current_user(
 
 
 @router_user.put(
-    '/user/',
+    '/user',
     response_model=schemas.UpdateUserRequest,
     tags=['User and Authentication'])
 def update_user(
