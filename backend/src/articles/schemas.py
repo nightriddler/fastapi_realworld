@@ -10,8 +10,8 @@ class Article(BaseModel):
     description: str
     body: str
     tagList: Optional[List[str]] = []
-    createdAt: str = datetime.now().isoformat()
-    updatedAt: str = datetime.now().isoformat()
+    createdAt: datetime
+    updatedAt: datetime
     favorited: Optional[bool] = False
     favoritesCount: Optional[int] = 0
     author: ProfileUser
@@ -62,8 +62,8 @@ class UpdateArticle(BaseModel):
 
 class Comment(BaseModel):
     id: int
-    createdAt: str = datetime.now().isoformat()
-    updatedAt: str = datetime.now().isoformat()
+    createdAt: datetime
+    updatedAt: datetime
     body: str
     author: ProfileUser
 

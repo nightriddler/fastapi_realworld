@@ -9,26 +9,32 @@ from sqlalchemy import update, delete
 from slugify import slugify
 from sqlalchemy.orm import contains_eager
 from fastapi import HTTPException
+from collections import Counter
 
 
 def select_articles(
         db, tag, author, favorited, limit, offset) -> List[Article]:
-    # Добавить сортировку по favorited.
+    # Добавить сортировку по favorited при авторизации.
     if tag:
-        articles = db.query(
+        query = db.query(
             Article).join(Article.tag).options(
                 contains_eager(Article.tag)).filter(
                     or_(tag is None, Tag.name == tag),
-                    or_(author is None, Article.author == author)
-                    ).offset(offset).limit(limit).all()
+                    or_(author is None, Article.author == author))
     else:
-        articles = db.query(
+        query = db.query(
             Article).filter(
-                or_(author is None, Article.author == author)).order_by(
-                    -Article.id).offset(offset).limit(limit).all()
+                or_(author is None, Article.author == author))
+    articles = query.order_by(-Article.id).offset(offset).limit(limit).all()
+    articles_favorites = db.query(Favorite).all()
+    favorites = [article.article for article in articles_favorites]
+    count_favorite_articles = Counter(favorites)
     for article in articles:
         article.author = article.authors
         article.tagList = [tag.name for tag in article.tag]
+        if article.slug in count_favorite_articles:
+            article.favorited = True
+            article.favoritesCount = count_favorite_articles[article.slug]
     return articles
 
 
@@ -53,22 +59,34 @@ def create_article(
     db.commit()
     db.refresh(db_article)
     db_article.tagList = [tag.name for tag in db_article.tag]
-    # article.favorited
-    # article.favoritesCount
     return db_article
 
 
 def get_single_article(db: Session, slug: str) -> Article:
     article = db.query(Article).where(Article.slug == slug).first()
+
     article.author = crud_users.get_user_by_username(db, article.author)
     article.tagList = [tag.name for tag in article.tag]
+
+    favorite = db.query(Favorite).where(Favorite.article == slug).all()
+    favorites = [article.article for article in favorite]
+    count_favorite_articles = Counter(favorites)
+    if slug in count_favorite_articles:
+        article.favorited = True
+        article.favoritesCount = count_favorite_articles[slug]
     return article
 
 
 def change_article(
         db: Session,
         slug: str,
-        article_data: schemas.UpdateArticle) -> Article:
+        article_data: schemas.UpdateArticle,
+        user: User) -> Article:
+    check = db.query(Article).where(Article.slug == slug).first()
+    if check.author != user.username:
+        raise HTTPException(
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+            detail='You are not the author of this article')
     up_article = update(
         Article).where(
             Article.slug == slug).values(

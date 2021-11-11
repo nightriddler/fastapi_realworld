@@ -29,8 +29,7 @@ def get_recent_articles_from_users_you_follow(
 @router_article.get(
     '/articles',
     response_model=schemas.GetArticles,
-    tags=['Articles']
-)
+    tags=['Articles'])
 def get_articles(
         tag: Optional[str] = None,
         author: Optional[str] = None,
@@ -46,8 +45,7 @@ def get_articles(
     '/articles',
     response_model=schemas.CreateArticleResponse,
     status_code=201,
-    tags=['Articles']
-)
+    tags=['Articles'])
 def set_up_article(
         article_data: schemas.CreateArticleRequest,
         db: Session = Depends(get_db),
@@ -76,8 +74,8 @@ def change_article(
         article_data: schemas.UpdateArticle,
         slug: str,
         db: Session = Depends(get_db),
-        token: str = Depends(authorize.check_token)):
-    article = crud.change_article(db, slug, article_data)
+        user: models.User = Depends(get_curr_user_by_token)):
+    article = crud.change_article(db, slug, article_data, user)
     return schemas.GetArticle(article=article)
 
 
@@ -124,7 +122,7 @@ def post_comment(
     tags=['Comments'])
 def remove_comment(
         slug: str,
-        id: str,
+        id: int,
         db: Session = Depends(get_db),
         user: models.User = Depends(get_curr_user_by_token)):
     crud.delete_comment(db, slug, id, user)
