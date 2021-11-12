@@ -1,34 +1,67 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import or_
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from src.db.models import Article, Tag, Comment, User, Favorite, Follow
 from src.articles import schemas
-from src.users import crud as crud_users
+# from src.users import crud as crud_users
 from sqlalchemy import update, delete
 from slugify import slugify
 from sqlalchemy.orm import contains_eager
 from fastapi import HTTPException
-from collections import Counter
+# from collections import Counter
+from sqlalchemy import func
+
+
+def feed_article(
+    db: Session,
+        user: User,
+        limit: int,
+        offset: int) -> List[Article]:
+    articles = select_articles(
+        db, limit=limit, offset=offset, feed=user.username)
+    return articles
 
 
 def select_articles(
-        db, tag, author, favorited, limit, offset) -> List[Article]:
-    # Добавить сортировку по favorited при авторизации.
+        db,
+        tag: Optional[str] = None,
+        author: Optional[str] = None,
+        favorited: Optional[str] = None,
+        limit: Optional[int] = 20,
+        offset: Optional[int] = 0,
+        slug: Optional[str] = None,
+        feed: Optional[str] = None) -> List[Article]:
+    query = db.query(Article)
+    if feed:
+        query = query.join(
+            Follow, Follow.author == Article.author).where(
+                Follow.user == feed)
+    if slug:
+        query = query.where(Article.slug == slug)
     if tag:
-        query = db.query(
-            Article).join(Article.tag).options(
+        query = query.join(Article.tag).options(
                 contains_eager(Article.tag)).filter(
-                    or_(tag is None, Tag.name == tag),
-                    or_(author is None, Article.author == author))
-    else:
-        query = db.query(
-            Article).filter(
+                    or_(tag is None, Tag.name == tag))
+    if author:
+        query = query.filter(
                 or_(author is None, Article.author == author))
-    articles = query.order_by(-Article.id).offset(offset).limit(limit).all()
-    articles_favorites = db.query(Favorite).all()
-    favorites = [article.article for article in articles_favorites]
-    count_favorite_articles = Counter(favorites)
+    if favorited:
+        query = query.join(Favorite).where(Favorite.user == favorited)
+    articles = query.order_by(
+        Article.createdAt.desc()).offset(offset).limit(limit).all()
+    favorites = db.query(
+        Favorite.article, func.count(
+            Favorite.article)).group_by(Favorite.article).all()
+    # >>> [('444', 2), ('222', 1), ('777', 1)]
+    count_favorite_articles = {article[0]: article[1] for article in favorites}
+    # >>> {'444': 2, '222': 1, '777': 1}
+
+    # Второй вариант. Мне кажется он менее оптимальный.
+    # articles_favorites = db.query(Favorite).all()
+    # favorites = [article.article for article in articles_favorites]
+    # count_favorite_articles = Counter(favorites)
+
     for article in articles:
         article.author = article.authors
         article.tagList = [tag.name for tag in article.tag]
@@ -59,22 +92,13 @@ def create_article(
     db.commit()
     db.refresh(db_article)
     db_article.tagList = [tag.name for tag in db_article.tag]
+    db_article.author = user
     return db_article
 
 
 def get_single_article(db: Session, slug: str) -> Article:
-    article = db.query(Article).where(Article.slug == slug).first()
-
-    article.author = crud_users.get_user_by_username(db, article.author)
-    article.tagList = [tag.name for tag in article.tag]
-
-    favorite = db.query(Favorite).where(Favorite.article == slug).all()
-    favorites = [article.article for article in favorite]
-    count_favorite_articles = Counter(favorites)
-    if slug in count_favorite_articles:
-        article.favorited = True
-        article.favoritesCount = count_favorite_articles[slug]
-    return article
+    articles = select_articles(db, slug=slug)
+    return articles[0]
 
 
 def change_article(
@@ -186,18 +210,3 @@ def select_tags(db: Session) -> List[str]:
     db_tags = db.query(Tag).all()
     tags = [tag.name for tag in db_tags]
     return tags
-
-
-def feed_article(
-    db: Session,
-        user: User,
-        limit: int,
-        offset: int) -> List[Article]:
-    articles = db.query(Article).join(
-        Follow,
-        Follow.author == Article.author).where(
-            Follow.user == user.username).offset(offset).limit(limit).all()
-    for article in articles:
-        article.author = article.authors
-        article.tagList = [tag.name for tag in article.tag]
-    return articles

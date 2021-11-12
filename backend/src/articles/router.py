@@ -1,13 +1,14 @@
 from typing import Optional
 from fastapi import APIRouter, status
+# from fastapi import Header
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
+from src.users.crud import get_curr_user_by_token
 from src.users import authorize
 from . import schemas, crud
 from src.db import models
 from src.db.database import get_db
-from src.users.crud import get_curr_user_by_token
 
 
 router_article = APIRouter()
@@ -36,7 +37,16 @@ def get_articles(
         favorited: Optional[str] = None,
         limit: Optional[int] = 20,
         offset: Optional[int] = 0,
-        db: Session = Depends(get_db)):
+        db: Session = Depends(get_db),
+        # Вариант не работает, потому что в Swagger'e
+        # появляется поле для ввода authorization.
+        # Либо оставлять, игнорируя Swagger (в постмане
+        # то все работает), либо искать варианты.
+        # authorization: Optional[str] = Header(None),
+        ):
+    # if authorization:
+    #     token = authorize.clear_token(authorization)
+    #     user = get_curr_user_by_token(db, token)
     articles = crud.select_articles(db, tag, author, favorited, limit, offset)
     return schemas.GetArticles(articles=articles, articlesCount=len(articles))
 
@@ -51,9 +61,6 @@ def set_up_article(
         db: Session = Depends(get_db),
         user: models.User = Depends(get_curr_user_by_token)):
     article = crud.create_article(db, article_data, user)
-    article.author = user
-    # article.favorited
-    # article.favoritesCount
     return schemas.CreateArticleResponse(article=article)
 
 

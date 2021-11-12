@@ -49,8 +49,7 @@ def change_user(
         User).where(
             User.token == user.token).values(
                 **data.user.dict(
-                    exclude_unset=True)).execution_options(
-                        synchronize_session="fetch")
+                    exclude_unset=True))
     db.execute(up_user)
     db.commit()
     curr_user = db.query(User).filter(User.token == user.token).first()
@@ -69,8 +68,7 @@ def delete_subscribe(db: Session, user_username: str, author_username: str):
     subscribe = delete(
         Follow).where(
             Follow.user == user_username,
-            Follow.author == author_username).execution_options(
-                synchronize_session="fetch")
+            Follow.author == author_username)
     db.execute(subscribe)
     db.commit()
 
