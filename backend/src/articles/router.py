@@ -2,7 +2,6 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request, status
 
-# from fastapi import Header
 from fastapi.params import Depends
 from slugify.slugify import slugify
 from sqlalchemy.orm import Session
@@ -27,8 +26,8 @@ def get_recent_articles_from_users_you_follow(
     db: Session = Depends(get_db),
     user: models.User = Depends(get_curr_user_by_token),
 ):
-    """Get most recent articles from users you follow.
-    Use query parameters to limit. Auth is required."""
+    '''Get most recent articles from users you follow.
+    Use query parameters to limit. Auth is required'''
     articles = crud.feed_article(db, user, limit, offset)
     return schemas.GetArticles(articles=articles, articlesCount=len(articles))
 
@@ -170,7 +169,6 @@ def post_comment(
     article = crud.get_single_article_auth_or_not_auth(db, slug, user)
     if not article:
         raise HTTPException(status_code=400, detail="Article is not found")
-    # db.close()
     comment = crud.create_comment(db, comment, slug, user)
     return schemas.GetCommentResponse(comment=comment)
 
