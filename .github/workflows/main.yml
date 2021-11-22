@@ -3,7 +3,7 @@ name: RealWorld_fastapi workflow
 on: [push]
 
 jobs:
-  formatter and linter test:
+  formatter_and_linter_test:
     runs-on: ubuntu-latest
 
     steps:
