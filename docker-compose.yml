@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+
+  db:
+    container_name: postgresql_db
+    image: postgres:13.4
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    
+    env_file:
+      - ./.env
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    ports:
+      - 5050:80
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
+  web:
+    container_name: fastapi_realworld
+    build: ./backend
+    command: uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/code
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
+volumes:
+  postgres_data:

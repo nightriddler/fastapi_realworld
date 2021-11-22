@@ -15,7 +15,7 @@ DB_HOST = os.environ.get("DB_HOST")
 DB_NAME = os.environ.get("DB_NAME")
 
 SQLALCHEMY_DATABASE_URL = (
-    f"{DB_DIALECT}+{DB_DRIVER}://" f"{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    f"{DB_DIALECT}+{DB_DRIVER}://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

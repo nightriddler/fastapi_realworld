@@ -4,6 +4,7 @@ from slugify import slugify
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql.expression import or_
+
 from src.articles import schemas
 from src.articles.utils import (
     add_favorited,

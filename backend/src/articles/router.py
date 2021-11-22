@@ -1,16 +1,16 @@
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request, status
-
 from fastapi.params import Depends
 from slugify.slugify import slugify
 from sqlalchemy.orm import Session
+from starlette.responses import Response
+
 from src.articles import utils
 from src.db import models
 from src.db.database import get_db
 from src.users import authorize
 from src.users.crud import get_curr_user_by_token
-from starlette.responses import Response
 
 from . import crud, schemas
 
@@ -26,8 +26,8 @@ def get_recent_articles_from_users_you_follow(
     db: Session = Depends(get_db),
     user: models.User = Depends(get_curr_user_by_token),
 ):
-    '''Get most recent articles from users you follow.
-    Use query parameters to limit. Auth is required'''
+    """Get most recent articles from users you follow.
+    Use query parameters to limit. Auth is required"""
     articles = crud.feed_article(db, user, limit, offset)
     return schemas.GetArticles(articles=articles, articlesCount=len(articles))
 

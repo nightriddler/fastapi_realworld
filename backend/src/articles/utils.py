@@ -2,6 +2,7 @@ from typing import List
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from src.db.models import Article, Favorite, User
 
 

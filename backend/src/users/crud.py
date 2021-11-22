@@ -2,10 +2,11 @@ from fastapi import HTTPException
 from fastapi.params import Depends
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_401_UNAUTHORIZED
+
 from src.db.database import get_db
 from src.db.models import Follow, User
 from src.users import authorize, schemas
-from starlette.status import HTTP_401_UNAUTHORIZED
 
 
 def get_curr_user_by_token(

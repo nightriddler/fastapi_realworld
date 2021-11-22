@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from src.db.models import User
 from src.users import crud
 

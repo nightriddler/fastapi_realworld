@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_401_UNAUTHORIZED
+
 from src.db import models
 from src.db.database import get_db
 from src.users import utils
-from starlette.status import HTTP_401_UNAUTHORIZED
 
 from . import authorize, crud, schemas
 
