@@ -42,7 +42,7 @@ class CreateArticle(BaseModel):
     body: str
     tagList: Optional[List[str]] = None
 
-    
+
 class CreateArticleRequest(BaseModel):
     article: CreateArticle
 
@@ -50,7 +50,6 @@ class CreateArticleRequest(BaseModel):
 class CreateArticleResponse(BaseModel):
     article: Article
 
-    
     class Config:
         json_encoders = {datetime: convert_datetime_to_iso_8601}
 
