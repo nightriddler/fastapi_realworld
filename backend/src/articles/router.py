@@ -206,8 +206,8 @@ def post_favorite(
     user: models.User = Depends(get_curr_user_by_token),
 ):
     """Favorite an article. Auth is required."""
-    article = crud.get_single_article_auth_or_not_auth(db, slug, user)
-    if not article:
+    article_check = crud.get_single_article_auth_or_not_auth(db, slug)
+    if not article_check:
         raise HTTPException(status_code=400, detail="Article is not found")
     favorite = utils.check_favorite(db, slug, user.username)
     if favorite:
@@ -216,7 +216,7 @@ def post_favorite(
             detail="You have already added this article to your favorites",
         )
     crud.create_favorite(db, slug, user)
-    article.favorited = True
+    article = crud.get_single_article_auth_or_not_auth(db, slug, user)
     return schemas.CreateArticleResponse(article=article)
 
 
@@ -231,8 +231,8 @@ def remove_favorite(
     user: models.User = Depends(get_curr_user_by_token),
 ):
     """Unfavorite an article. Auth is required."""
-    article = crud.get_single_article_auth_or_not_auth(db, slug, user)
-    if not article:
+    article_check = crud.get_single_article_auth_or_not_auth(db, slug)
+    if not article_check:
         raise HTTPException(status_code=400, detail="Article is not found")
     favorite = utils.check_favorite(db, slug, user.username)
     if not favorite:
@@ -240,6 +240,7 @@ def remove_favorite(
             status_code=400, detail="The article was not in my favorites"
         )
     crud.delete_favorite(db, slug, user)
+    article = crud.get_single_article_auth_or_not_auth(db, slug, user)
     return schemas.CreateArticleResponse(article=article)
 
 

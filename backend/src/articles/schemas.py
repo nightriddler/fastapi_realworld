@@ -6,6 +6,10 @@ from pydantic import BaseModel
 from src.users.schemas import ProfileUser
 
 
+def convert_datetime_to_iso_8601(datetime: datetime) -> str:
+    return datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
 class Article(BaseModel):
     slug: str
     title: str
@@ -20,6 +24,7 @@ class Article(BaseModel):
 
     class Config:
         orm_mode = True
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class GetArticles(BaseModel):
@@ -28,6 +33,7 @@ class GetArticles(BaseModel):
 
     class Config:
         orm_mode = True
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class CreateArticle(BaseModel):
@@ -36,7 +42,7 @@ class CreateArticle(BaseModel):
     body: str
     tagList: Optional[List[str]] = None
 
-
+    
 class CreateArticleRequest(BaseModel):
     article: CreateArticle
 
@@ -44,12 +50,17 @@ class CreateArticleRequest(BaseModel):
 class CreateArticleResponse(BaseModel):
     article: Article
 
+    
+    class Config:
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
+
 
 class GetArticle(BaseModel):
     article: Article
 
     class Config:
         orm_mode = True
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class ChangeArticle(BaseModel):
@@ -71,10 +82,14 @@ class Comment(BaseModel):
 
     class Config:
         orm_mode = True
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class GetCommentsResponse(BaseModel):
     comments: List[Comment]
+
+    class Config:
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class CreateCommentBody(BaseModel):
@@ -84,9 +99,15 @@ class CreateCommentBody(BaseModel):
 class CreateComment(BaseModel):
     comment: CreateCommentBody
 
+    class Config:
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
+
 
 class GetCommentResponse(BaseModel):
     comment: Comment
+
+    class Config:
+        json_encoders = {datetime: convert_datetime_to_iso_8601}
 
 
 class GetTags(BaseModel):

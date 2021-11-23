@@ -1,4 +1,4 @@
-# Fastapi Realworld
+# FastAPI Realworld
 
 [![logo](https://user-images.githubusercontent.com/75097575/142890407-28f56df1-8c74-4086-a6ee-3ba7626ba154.png)](https://github.com/gothinkster/realworld)
 
@@ -46,6 +46,10 @@ docker-compose up
 ```
 http://127.0.0.1:8000/docs/
 ```
+
+## Documentation
+The documentation `/docs/openapi.yml` can be seen at https://editor.swagger.io/ and also when you start the project at `http://127.0.0.1:8000/docs/`.
+
 
 ## Contact the author
 >[LinkedIn](http://linkedin.com/in/aizi)

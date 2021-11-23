@@ -34,9 +34,12 @@ def authentication(user_login: schemas.LoginUserRequest, db: Session = Depends(g
 )
 def register_user(new_user: schemas.NewUserRequest, db: Session = Depends(get_db)):
     """Register a new user."""
-    db_user = crud.get_user_by_email(db, new_user.user.email)
-    if db_user:
+    db_user_email = crud.get_user_by_email(db, new_user.user.email)
+    if db_user_email:
         raise HTTPException(status_code=400, detail="Email already registered")
+    db_user_username = crud.get_user_by_username(db, new_user.user.username)
+    if db_user_username:
+        raise HTTPException(status_code=400, detail="Username already registered")
     user = crud.create_user(db, new_user)
     return schemas.UserResponse(user=user)
 

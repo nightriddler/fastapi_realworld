@@ -30,11 +30,11 @@ def get_articles_auth_or_not(
     Auth is optional."""
     query = db.query(Article)
     if tag:
-        query = (
-            query.join(Article.tag)
-            .options(contains_eager(Article.tag))
-            .filter(or_(tag is None, Tag.name == tag))
-        )
+        tag_from_db = db.query(Tag).filter(Tag.name == tag).first()
+        if tag_from_db:
+            query = query.join(Article.tag).filter(Article.tag.contains(tag_from_db))
+        else:
+            return []
     if author:
         query = query.filter(or_(author is None, Article.author == author))
     if favorited:

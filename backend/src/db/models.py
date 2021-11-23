@@ -83,7 +83,8 @@ class Article(Base):
         default=datetime.now().isoformat(),
     )
 
-    tag = relationship("Tag", secondary=article_tag_table)
+    tag = relationship("Tag", secondary=article_tag_table, backref="articles")
+
     favorite = relationship("Favorite", cascade="all,delete-orphan", backref="articles")
 
     comments = relationship("Comment", cascade="all,delete-orphan", backref="articles")
