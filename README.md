@@ -30,8 +30,8 @@ DB_PASSWORD=postgres
 DB_HOST=db
 DB_NAME=postgres
 
-PGADMIN_EMAIL=admin@admin.com
-PGADMIN_PASSWORD=admin
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+PGADMIN_DEFAULT_PASSWORD=admin
 
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -45,6 +45,10 @@ docker-compose up
 4. The project is available at
 ```
 http://127.0.0.1:8000/docs/
+```
+The pgAdmin panel is available: 
+```
+http://127.0.0.1:5050/
 ```
 
 ## Documentation
