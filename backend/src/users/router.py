@@ -90,7 +90,7 @@ def get_profile(request: Request, username: str, db: Session = Depends(get_db)):
     response_model=schemas.ProfileUserResponse,
     tags=["Profile"],
 )
-def create_folllow(
+def create_follow(
     username: str,
     db: Session = Depends(get_db),
     follower: models.User = Depends(crud.get_curr_user_by_token),

@@ -82,7 +82,6 @@ def create_article(
             .filter(Tag.name.in_(data.article.tagList))
             .all()
         ]
-
     db_article = Article(
         slug=slugify(data.article.title),
         title=data.article.title,
@@ -94,7 +93,6 @@ def create_article(
     db.add(db_article)
     db.commit()
     db.refresh(db_article)
-
     db_article.tagList = [tag.name for tag in db_article.tag]
     db_article.author = user
     db_article.createdAt = db_article.created_at

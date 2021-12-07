@@ -50,7 +50,8 @@ def add_tags_authors_favorites_time_in_articles(
     count_favorite_articles = {article[0]: article[1] for article in favorites}
     # >>> {'444': 2, '222': 1, '777': 1}
     for article in articles:
-        article.author = article.authors
+        if not isinstance(article.author, User):
+            article.author = article.authors
         article.tagList = [tag.name for tag in article.tag]
         if article.slug in count_favorite_articles:
             article.favoritesCount = count_favorite_articles[article.slug]

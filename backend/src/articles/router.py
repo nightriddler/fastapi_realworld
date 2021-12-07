@@ -44,7 +44,7 @@ def get_articles(
 ):
     """Get most recent articles globally.
     Use query parameters to filter results. Auth is optional."""
-    authorization = request.headers.get("authorization")
+    authorization = request.headers.get("Authorization")
     if authorization:
         token = authorize.clear_token(authorization)
         auth_user = get_curr_user_by_token(db, token)
@@ -108,6 +108,8 @@ def change_article(
 ):
     """Update an article. Auth is required."""
     check = crud.get_single_article_auth_or_not_auth(db, slug)
+    if not check:
+        raise HTTPException(status_code=400, detail="Artcile is not found")
     if check.author.username != user.username:
         raise HTTPException(
             status_code=400, detail="You are not the author of this article"
