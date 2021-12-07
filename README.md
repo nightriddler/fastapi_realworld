@@ -37,6 +37,13 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
 POSTGRES_HOST=db
+
+DB_TEST_DIALECT=postgresql
+DB_TEST_DRIVER=psycopg2
+DB_TEST_USERNAME=postgres
+DB_TEST_PASSWORD=postgres
+DB_TEST_HOST=db:5432
+DB_TEST_NAME=test
 ```
 3. In the same folder, run docker-compose with the command 
 ```
@@ -50,6 +57,14 @@ The pgAdmin panel is available:
 ```
 http://127.0.0.1:5050/
 ```
+
+## Testing
+When deployed in docker-compose, you can run Pytest:
+```
+docker-compose exec web python -m pytest
+```
+>The script `create_test_db.sh` automatically creates a database for testing using `POSTGRES_USER` and `POSTGRES_DB` from the environment. The name for the database can be set in the environment in the field `DB_TEST_NAME`.
+
 
 ## Documentation
 The documentation `/docs/openapi.yml` can be seen at https://editor.swagger.io/ and also when you start the project at `http://127.0.0.1:8000/docs/`.
