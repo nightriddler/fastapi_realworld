@@ -18,8 +18,6 @@ SQLALCHEMY_DATABASE_URL = (
     f"{DB_DIALECT}+{DB_DRIVER}://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 )
 
-print(SQLALCHEMY_DATABASE_URL)
-
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
