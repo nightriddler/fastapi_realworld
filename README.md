@@ -68,6 +68,10 @@ docker-compose exec web python -m pytest
 ```
 >The script `create_test_db.sh` automatically creates a database for testing using `POSTGRES_USER` and `POSTGRES_DB` from the environment. The name for the database can be set in the environment in the field `DB_TEST_NAME`.
 
+>Bear in mind as [per the documentation](https://hub.docker.com/_/postgres), "scripts in `/docker-entrypoint-initdb.d` are only run if you start the container with a data directory that is empty" (see `docker-compose.yml`).
+
+
+
 
 ## Documentation
 The documentation `/docs/openapi.yml` can be seen at https://editor.swagger.io/ and also when you start the project at `http://127.0.0.1:8000/docs/`.
