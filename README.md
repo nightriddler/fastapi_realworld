@@ -36,14 +36,17 @@ PGADMIN_DEFAULT_PASSWORD=admin
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
-POSTGRES_HOST=db
 
 DB_TEST_DIALECT=postgresql
 DB_TEST_DRIVER=psycopg2
 DB_TEST_USERNAME=postgres
 DB_TEST_PASSWORD=postgres
-DB_TEST_HOST=db:5432
+DB_TEST_HOST=db
 DB_TEST_NAME=test
+```
+You can generate your `SECRET` with the command (from the root): 
+```
+echo SECRET=$(openssl rand -hex 32) >> .env
 ```
 3. In the same folder, run docker-compose with the command 
 ```
