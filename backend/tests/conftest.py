@@ -25,7 +25,9 @@ DB_TEST_NAME = os.environ.get("DB_TEST_NAME")
 
 # SQLALCHEMY_DATABASE_URL = f"{DB_TEST_DIALECT}+{DB_TEST_DRIVER}://{DB_TEST_USERNAME}:{DB_TEST_PASSWORD}@{DB_TEST_HOST}/{DB_TEST_NAME}"
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost/postgres"
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql+psycopg2://postgres:postgres@localhost:5432/postgres"
+)
 print(SQLALCHEMY_DATABASE_URL)
 
 
