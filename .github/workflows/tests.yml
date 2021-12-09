@@ -12,9 +12,9 @@ jobs:
       postgres:
         image: postgres:11.5-alpine
         env:
-          POSTGRES_USER: postgres_user
-          POSTGRES_PASSWORD: postgres_pass
-          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -38,10 +38,16 @@ jobs:
         ALGORITHM: HS256
         DB_TEST_DIALECT: postgresql
         DB_TEST_DRIVER: psycopg2
-        DB_TEST_USERNAME: postgres_user
-        DB_TEST_PASSWORD: postgres_pass
+        DB_TEST_USERNAME: postgres
+        DB_TEST_PASSWORD: postgres
         DB_TEST_HOST: localhost:${{ job.services.postgres.ports[5432] }}
-        DB_TEST_NAME: test_db
+        DB_TEST_NAME: postgres
+        DB_DIALECT: postgresql
+        DB_DRIVER: psycopg2
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
+        DB_HOST: localhost:${{ job.services.postgres.ports[5432] }}
+        DB_NAME: postgres
       run: |
         cd backend/ && python -m pytest -s
  
