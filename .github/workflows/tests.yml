@@ -43,7 +43,7 @@ jobs:
         DB_TEST_HOST: localhost
         DB_TEST_NAME: postgres
       run: |
-        python -m pytest -s
+        cd backend/ && python -m pytest
  
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2.1.0
