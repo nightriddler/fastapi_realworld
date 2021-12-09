@@ -1,6 +1,6 @@
 name: Styles
 
-on: [push, pull-request]
+on: [push, pull_request]
 
 jobs:
   formatter_and_linter_test:
