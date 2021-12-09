@@ -33,14 +33,14 @@ jobs:
 
     - name: Run tests
       env:
-        SECRET=ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
-        ALGORITHM=HS256
-        DB_TEST_DIALECT=postgresql
-        DB_TEST_DRIVER=psycopg2
-        DB_TEST_USERNAME=postgres
-        DB_TEST_PASSWORD=postgres
-        DB_TEST_HOST=localhost
-        DB_TEST_NAME=postgres
+        SECRET: ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
+        ALGORITHM: HS256
+        DB_TEST_DIALECT: postgresql
+        DB_TEST_DRIVER: psycopg2
+        DB_TEST_USERNAME: postgres
+        DB_TEST_PASSWORD: postgres
+        DB_TEST_HOST: localhost
+        DB_TEST_NAME: postgres
       run: |
         cd backend/
         python -m pytest
