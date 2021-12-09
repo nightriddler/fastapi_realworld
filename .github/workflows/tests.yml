@@ -40,7 +40,7 @@ jobs:
         DB_TEST_DRIVER: psycopg2
         DB_TEST_USERNAME: postgres
         DB_TEST_PASSWORD: postgres
-        DB_TEST_HOST: localhost
+        DB_TEST_HOST: localhost:${{ job.services.postgres.ports[5432] }}
         DB_TEST_NAME: postgres
       run: |
         cd backend/ && python -m pytest -s
