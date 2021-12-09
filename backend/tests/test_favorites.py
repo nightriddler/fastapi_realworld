@@ -1,4 +1,4 @@
-from ..src.db.models import Favorite
+from src.db.models import Favorite
 from .schemas import check_content_article
 
 

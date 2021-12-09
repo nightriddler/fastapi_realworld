@@ -1,4 +1,4 @@
-from ..src.db.models import Comment
+from src.db.models import Comment
 from .schemas import check_content_comment
 
 

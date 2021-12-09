@@ -1,4 +1,4 @@
-from ..src.db.models import Follow
+from src.db.models import Follow
 from .schemas import check_content_profile
 
 

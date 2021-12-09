@@ -1,5 +1,5 @@
 from slugify import slugify
-from ..src.db.models import Article, Tag
+from src.db.models import Article, Tag
 from .schemas import check_content_article
 
 

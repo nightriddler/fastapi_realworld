@@ -42,7 +42,7 @@ jobs:
         DB_TEST_HOST: localhost
         DB_TEST_NAME: postgres
       run: |
-        cd backend/
+        cd home/runner/work/fastapi_realworld/fastapi_realworld/backend/
         python -m pytest
  
     - name: Upload coverage to Codecov
