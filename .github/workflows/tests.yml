@@ -12,9 +12,9 @@ jobs:
       postgres:
         image: postgres:11.5-alpine
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres_user
+          POSTGRES_PASSWORD: postgres_pass
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -22,9 +22,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v2.2.2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: | 
@@ -38,10 +38,10 @@ jobs:
         ALGORITHM: HS256
         DB_TEST_DIALECT: postgresql
         DB_TEST_DRIVER: psycopg2
-        DB_TEST_USERNAME: postgres
-        DB_TEST_PASSWORD: postgres
+        DB_TEST_USERNAME: postgres_user
+        DB_TEST_PASSWORD: postgres_pass
         DB_TEST_HOST: localhost:${{ job.services.postgres.ports[5432] }}
-        DB_TEST_NAME: postgres
+        DB_TEST_NAME: test_db
       run: |
         cd backend/ && python -m pytest -s
  
