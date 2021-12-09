@@ -4,7 +4,7 @@ from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 import pytest
-from src.db.models import Tag
+from ..src.db.models import Tag
 
 from ..src.db.database import Base
 from ..main import app
