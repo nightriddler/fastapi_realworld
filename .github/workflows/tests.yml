@@ -31,7 +31,7 @@ jobs:
         cd backend/
         pip install -r requirements.txt 
 
-    - name: Run tests
+    - name: Run tests and collect coverage
       env:
         SECRET: ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
         ALGORITHM: HS256
@@ -48,7 +48,7 @@ jobs:
         DB_HOST: localhost:${{ job.services.postgres.ports[5432] }}
         DB_NAME: postgres
       run: |
-        cd backend/ && python -m pytest -s
+        cd backend/ && python -m pytest --cov=./ --cov-report=xml
  
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2.1.0
