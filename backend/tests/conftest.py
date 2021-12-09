@@ -6,10 +6,10 @@ from sqlalchemy.orm.session import Session
 import pytest
 from src.db.models import Tag
 
-from src.db.database import Base
+from ..src.db.database import Base
 from ..main import app
 
-from src.db.database import get_db
+from ..src.db.database import get_db
 from fastapi.testclient import TestClient
 
 
@@ -24,6 +24,7 @@ DB_TEST_NAME = os.environ.get("DB_TEST_NAME")
 
 
 SQLALCHEMY_DATABASE_URL = f"{DB_TEST_DIALECT}+{DB_TEST_DRIVER}://{DB_TEST_USERNAME}:{DB_TEST_PASSWORD}@{DB_TEST_HOST}/{DB_TEST_NAME}"
+print(SQLALCHEMY_DATABASE_URL)
 
 
 @pytest.fixture(scope="session")
