@@ -1,14 +1,27 @@
 from fastapi import FastAPI
 
 from src.articles.router import router_article
-from src.db import models
-from src.db.database import engine
+from src.db.models import Base
+
+from src.db.database import create_engine_app
 from src.users.router import router_user
 
-models.Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
+from settings import config
 
 
-app.include_router(router_user)
-app.include_router(router_article)
+def create_app():
+
+    app = FastAPI()
+    (engine, sessionmaker) = create_engine_app(config.sqlalchemy_db)
+
+    Base.metadata.create_all(bind=engine)
+
+    app.state.engine = engine
+    app.state.sessionmaker = sessionmaker
+
+    app.include_router(router_user)
+    app.include_router(router_article)
+    return app
+
+
+app = create_app()

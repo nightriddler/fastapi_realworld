@@ -4,8 +4,10 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.schema import Table
 from sqlalchemy.sql.sqltypes import DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
-from .database import Base
+
+Base = declarative_base()
 
 
 class User(Base):

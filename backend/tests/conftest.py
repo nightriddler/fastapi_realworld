@@ -1,40 +1,22 @@
-import os
-
-from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 import pytest
-from src.db.models import Tag
-
-from src.db.database import Base
-from ..main import app
+from src.db.models import Tag, Base
 
 from src.db.database import get_db
+from ..main import app
+
 from fastapi.testclient import TestClient
-
-
-load_dotenv(find_dotenv())
-
-DB_TEST_DIALECT = os.environ.get("DB_TEST_DIALECT")
-DB_TEST_DRIVER = os.environ.get("DB_TEST_DRIVER")
-DB_TEST_USERNAME = os.environ.get("DB_TEST_USERNAME")
-DB_TEST_PASSWORD = os.environ.get("DB_TEST_PASSWORD")
-DB_TEST_HOST = os.environ.get("DB_TEST_HOST")
-DB_TEST_NAME = os.environ.get("DB_TEST_NAME")
-
-
-SQLALCHEMY_DATABASE_URL = f"{DB_TEST_DIALECT}+{DB_TEST_DRIVER}://{DB_TEST_USERNAME}:{DB_TEST_PASSWORD}@{DB_TEST_HOST}/{DB_TEST_NAME}"
-
-# SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@postgres:5432/postgres"
+from settings import config
 
 
 @pytest.fixture(scope="session")
 def db_engine():
-    print(SQLALCHEMY_DATABASE_URL)
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(config.sqlalchemy_db_test)
     Base.metadata.create_all(bind=engine)
 
     yield engine
+
     Base.metadata.drop_all(bind=engine)
 
 
@@ -55,7 +37,6 @@ def db(db_engine):
 
 @pytest.fixture(scope="function")
 def client(db):
-
     with TestClient(app) as c:
         yield c
 

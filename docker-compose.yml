@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      # - ./create_test_db.sh:/var/lib/postgresql/data/
       - ./create_test_db.sh:/docker-entrypoint-initdb.d/create_test_db.sh
     env_file:
       - ./.env
