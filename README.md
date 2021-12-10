@@ -22,31 +22,12 @@ Implementation for [RealWorld](https://github.com/gothinkster/realworld) project
 ```
 git clone https://github.com/nightriddler/fastapi_realworld.git
 ```
-2. In the root folder create a file ``.env`` with environment variables:
+2. In the root folder create a file `.env` with environment variables (or rename the file `.env.example` to `.env`)::
 ```
-SECRET=ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
-ALGORITHM=HS256
+SECRET=6dbb34c07663c6bc91ab4e22efce14def95cc2d0b9e397097facec414206181e
 
-DB_DIALECT=postgresql
-DB_DRIVER=psycopg2
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_HOST=db
-DB_NAME=postgres
-
-PGADMIN_DEFAULT_EMAIL=admin@admin.com
-PGADMIN_DEFAULT_PASSWORD=admin
-
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=postgres
-
-DB_TEST_DIALECT=postgresql
-DB_TEST_DRIVER=psycopg2
-DB_TEST_USERNAME=postgres
-DB_TEST_PASSWORD=postgres
-DB_TEST_HOST=db
-DB_TEST_NAME=test
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@db/postgres
+DATABASE_URL_TEST=postgresql+psycopg2://postgres:postgres@db/test
 ```
 You can generate your `SECRET` with the command (from the root): 
 ```
@@ -66,14 +47,14 @@ http://127.0.0.1:5050/
 ```
 
 ## Testing
-When deployed in docker-compose, you can run Pytest:
+After deploying to docker-compose, you can run Pytest by adding the test database from the SQL file(`create_test_db.sql` from root) with the command
+```
+docker exec -i $(docker-compose ps -q db) psql -v --username postgres --dbname postgres < create_test_db.sql
+```
+And then, run the tests:
 ```
 docker-compose exec web python -m pytest
 ```
->The script `create_test_db.sh` automatically creates a database for testing using `POSTGRES_USER` and `POSTGRES_DB` from the environment. The name for the database can be set in the environment in the field `DB_TEST_NAME`.
-
->Bear in mind as [per the documentation](https://hub.docker.com/_/postgres), "scripts in `/docker-entrypoint-initdb.d` are only run if you start the container with a data directory that is empty" (see `docker-compose.yml`).
-
 
 
 

@@ -9,10 +9,10 @@ services:
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      # - ./create_test_db.sh:/var/lib/postgresql/data/
-      - ./create_test_db.sh:/docker-entrypoint-initdb.d/create_test_db.sh
-    env_file:
-      - ./.env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
 
   pgadmin:
     container_name: pgadmin
@@ -21,8 +21,9 @@ services:
       - 5050:80
     depends_on:
       - db
-    env_file:
-      - ./.env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin=value
 
   web:
     container_name: fastapi_realworld
