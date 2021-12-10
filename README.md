@@ -2,9 +2,11 @@
 
 [![logo](https://user-images.githubusercontent.com/75097575/142890407-28f56df1-8c74-4086-a6ee-3ba7626ba154.png)](https://github.com/gothinkster/realworld)
 
-[![Styles](https://img.shields.io/github/workflow/status/nightriddler/fastapi_realworld/Styles?label=Styles)](https://github.com/nightriddler/fastapi_realworld/actions)
-[![Tests](https://img.shields.io/github/workflow/status/nightriddler/fastapi_realworld/Tests?label=Tests)](https://github.com/nightriddler/fastapi_realworld/actions)
-[![](https://img.shields.io/codecov/c/github/nightriddler/fastapi_realworld/master)](https://app.codecov.io/gh/nightriddler/fastapi_realworld/)
+
+
+[![Styles](https://img.shields.io/github/workflow/status/nightriddler/fastapi_realworld/Styles?label=Styles)](https://github.com/nightriddler/fastapi_realworld/actions/workflows/styles.yml)
+[![Tests](https://img.shields.io/github/workflow/status/nightriddler/fastapi_realworld/Tests?label=Tests)](https://github.com/nightriddler/fastapi_realworld/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/github/nightriddler/fastapi_realworld/branch/main/graph/badge.svg?token=JQ4NUO1T4V)](https://codecov.io/github/nightriddler/fastapi_realworld)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![license MIT](https://img.shields.io/github/license/nightriddler/fastapi_realworld)
 
