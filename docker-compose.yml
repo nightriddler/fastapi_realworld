@@ -23,7 +23,7 @@ services:
       - db
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=admin=value
+      - PGADMIN_DEFAULT_PASSWORD=admin
 
   web:
     container_name: fastapi_realworld
@@ -39,4 +39,4 @@ services:
       - ./.env
 
 volumes:
-  postgres_data: null
+  postgres_data:

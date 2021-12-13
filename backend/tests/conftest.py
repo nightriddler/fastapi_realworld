@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 import pytest
-from src.db.models import Tag, Base
+from src.db.models import Tag
 
 from src.db.database import get_db
 from ..main import app
@@ -12,12 +12,8 @@ from settings import config
 
 @pytest.fixture(scope="session")
 def db_engine():
-    engine = create_engine(config.sqlalchemy_db_test)
-    Base.metadata.create_all(bind=engine)
-
+    engine = create_engine(config.sqlalchemy_db)
     yield engine
-
-    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")

@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 
 from src.articles.router import router_article
-from src.db.models import Base
-
 from src.db.database import create_engine_app
 from src.users.router import router_user
 
@@ -13,8 +11,6 @@ def create_app():
 
     app = FastAPI()
     (engine, sessionmaker) = create_engine_app(config.sqlalchemy_db)
-
-    Base.metadata.create_all(bind=engine)
 
     app.state.engine = engine
     app.state.sessionmaker = sessionmaker

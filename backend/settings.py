@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     SECRET: str
     ALGORITHM: str = "HS256"
     DATABASE_URL: PostgresDsnPsycopg = None
-    DATABASE_URL_TEST: PostgresDsnPsycopg = None
     API_KEY_SCHEME: str = "Token"
     API_KEY_NAME: str = "Authorization"
     DESCRIPTION_TOKEN: str = """
@@ -26,17 +25,7 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_db(self) -> str:
-        return (
-            str(self.DATABASE_URL) if self.DATABASE_URL else str(self.DATABASE_URL_TEST)
-        )
-
-    @property
-    def sqlalchemy_db_test(self) -> str:
-        return (
-            str(self.DATABASE_URL_TEST)
-            if self.DATABASE_URL_TEST
-            else str(self.DATABASE_URL)
-        )
+        return str(self.DATABASE_URL)
 
     class Config:
         env_file = ".env"
