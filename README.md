@@ -25,9 +25,7 @@ git clone https://github.com/nightriddler/fastapi_realworld.git
 2. In the root folder create a file `.env` with environment variables (or rename the file `.env.example` to `.env`)::
 ```
 SECRET=6dbb34c07663c6bc91ab4e22efce14def95cc2d0b9e397097facec414206181e
-
 DATABASE_URL=postgresql+psycopg2://postgres:postgres@db/postgres
-DATABASE_URL_TEST=postgresql+psycopg2://postgres:postgres@db/test
 ```
 You can generate your `SECRET` with the command (from the root): 
 ```
@@ -47,9 +45,9 @@ http://127.0.0.1:5050/
 ```
 
 ## Testing
-After deploying to docker-compose, you can run Pytest by adding the test database from the SQL file (`create_test_db.sql` from root) with the command
+Run the migration to test it:
 ```
-docker exec -i $(docker-compose ps -q db) psql -v --username postgres --dbname postgres < create_test_db.sql
+docker-compose exec web alembic upgrade head
 ```
 And then, run the tests:
 ```
