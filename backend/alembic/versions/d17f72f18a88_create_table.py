@@ -1,7 +1,7 @@
 """Create table
 
 Revision ID: d17f72f18a88
-Revises: 
+Revises:
 Create Date: 2021-12-13 12:16:54.682681
 
 """

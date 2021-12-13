@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.db.models import Base
+
 from settings import config
 
 DATABASE_URL = config.sqlalchemy_db
@@ -12,7 +12,7 @@ config = context.config
 
 fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = None
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
