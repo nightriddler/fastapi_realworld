@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     DATABASE_URL: PostgresDsnPsycopg = None
     DATABASE_URL_TEST: PostgresDsnPsycopg = None
+    API_KEY_SCHEME: str = "Token"
+    API_KEY_NAME: str = "Authorization"
     DESCRIPTION_TOKEN: str = """
     For accessing the protected API resources, you must have received a a valid JWT token after registering or logging in. This JWT token must then be used for all protected resources by passing it in via the 'Authorization' header.
 
@@ -21,8 +23,6 @@ class Settings(BaseSettings):
 
     Token xxxxxx.yyyyyyy.zzzzzz
     """
-    API_KEY_SCHEME: str = "Token"
-    API_KEY_NAME: str = "Authorization"
 
     @property
     def sqlalchemy_db(self) -> str:

@@ -47,7 +47,7 @@ http://127.0.0.1:5050/
 ```
 
 ## Testing
-After deploying to docker-compose, you can run Pytest by adding the test database from the SQL file(`create_test_db.sql` from root) with the command
+After deploying to docker-compose, you can run Pytest by adding the test database from the SQL file (`create_test_db.sql` from root) with the command
 ```
 docker exec -i $(docker-compose ps -q db) psql -v --username postgres --dbname postgres < create_test_db.sql
 ```
