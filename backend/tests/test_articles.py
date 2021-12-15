@@ -1,9 +1,15 @@
+from typing import Dict, List, Tuple
 from slugify import slugify
+from sqlalchemy.orm.session import Session
+from starlette.responses import Response
+from starlette.testclient import TestClient
 from src.db.models import Article, Tag
 from .schemas import check_content_article
 
 
-def test_get_tags(db, client, create_and_get_tags):
+def test_get_tags(
+    db: Session, client: TestClient, create_and_get_tags: List[str]
+) -> None:
     """Test get tags. Auth not required."""
     response = client.get("/tags")
     count_tags = db.query(Tag).count()
@@ -16,15 +22,15 @@ def test_get_tags(db, client, create_and_get_tags):
 
 
 def test_set_up_article(
-    db,
-    client,
-    data_first_user,
-    token_first_user,
-    data_first_article,
-    token_second_user,
-    data_second_article,
-    create_and_get_tags,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    token_second_user: str,
+    data_second_article: Dict[str, Dict[str, str]],
+    create_and_get_tags: List[str],
+) -> None:
     """Test create an article. Auth is required"""
     response = client.post(
         "/articles",
@@ -68,17 +74,17 @@ def test_set_up_article(
 
 
 def test_get_articles(
-    db,
-    client,
-    data_first_user,
-    data_second_user,
-    token_first_user,
-    data_first_article,
-    data_second_article,
-    create_and_get_tags,
-    create_and_get_response_two_article,
-    create_follow,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    data_second_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    data_second_article: Dict[str, Dict[str, str]],
+    create_and_get_tags: List[str],
+    create_and_get_response_two_article: Tuple[Response],
+    create_follow: None,
+) -> None:
     """Test get most recent articles globally.
     Use query parameters to filter results. Auth is optional."""
 
@@ -161,13 +167,13 @@ def test_get_articles(
 
 
 def test_get_recent_articles_from_users_you_follow(
-    client,
-    data_second_user,
-    token_first_user,
-    create_and_get_response_two_article,
-    data_second_article,
-    create_follow,
-):
+    client: TestClient,
+    data_second_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    create_and_get_response_two_article: Tuple[Response],
+    data_second_article: Dict[str, Dict[str, str]],
+    create_follow: None,
+) -> None:
     """Test get most recent articles from users you follow.
     Use query parameters to limit. Auth is required."""
     response_feed = client.get(
@@ -185,11 +191,11 @@ def test_get_recent_articles_from_users_you_follow(
 
 
 def test_get_article(
-    client,
-    data_first_user,
-    data_first_article,
-    create_and_get_response_two_article,
-):
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    data_first_article: Dict[str, Dict[str, str]],
+    create_and_get_response_two_article: Tuple[Response],
+) -> None:
     """Test get an article. Auth not required."""
     slug_article = slugify(data_first_article["article"]["title"])
     response_get_article = client.get(f"/articles/{slug_article}")
@@ -204,15 +210,15 @@ def test_get_article(
 
 
 def test_change_article(
-    db,
-    client,
-    data_first_user,
-    token_first_user,
-    token_second_user,
-    data_first_article,
-    data_second_article,
-    create_and_get_response_one_article,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    token_second_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    data_second_article: Dict[str, Dict[str, str]],
+    create_and_get_response_one_article: Tuple[Response],
+) -> None:
     """Test update an article. Auth is required."""
     slug_article = slugify(data_first_article["article"]["title"])
     response_update_article = client.put(
@@ -240,13 +246,13 @@ def test_change_article(
 
 
 def test_remove_article(
-    db,
-    client,
-    token_first_user,
-    token_second_user,
-    data_first_article,
-    create_and_get_response_one_article,
-):
+    db: Session,
+    client: TestClient,
+    token_first_user: str,
+    token_second_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    create_and_get_response_one_article: Tuple[Response],
+) -> None:
     """Test delete an article. Auth is required."""
     count_article = db.query(Article).count()
     assert count_article == 1, "The article was not found in the database."

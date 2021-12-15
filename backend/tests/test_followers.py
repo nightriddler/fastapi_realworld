@@ -1,10 +1,18 @@
+from typing import Dict
+from sqlalchemy.orm.session import Session
+from starlette.testclient import TestClient
 from src.db.models import Follow
 from .schemas import check_content_profile
 
 
 def test_create_folllow(
-    client, db, token_first_user, add_second_user, data_first_user, data_second_user
-):
+    db: Session,
+    client: TestClient,
+    token_first_user: str,
+    add_second_user: None,
+    data_first_user: Dict[str, Dict[str, str]],
+    data_second_user: Dict[str, Dict[str, str]],
+) -> None:
     """Create subscribe. Auth requeired."""
     response = client.post(
         f"/profiles/{data_second_user['user']['username']}/follow",
@@ -65,8 +73,13 @@ def test_create_folllow(
 
 
 def test_get_profile(
-    db, client, token_first_user, add_second_user, data_second_user, create_follow
-):
+    db: Session,
+    client: TestClient,
+    token_first_user: str,
+    add_second_user: None,
+    data_second_user: Dict[str, Dict[str, str]],
+    create_follow: None,
+) -> None:
     """Test get a profile of a user of the system. Auth is optional."""
     response_fake_token = client.get(
         f"/profiles/{data_second_user['user']['username']}",
@@ -102,8 +115,13 @@ def test_get_profile(
 
 
 def test_delete_follow(
-    db, client, token_first_user, add_second_user, data_second_user, create_follow
-):
+    db: Session,
+    client: TestClient,
+    token_first_user: str,
+    add_second_user: None,
+    data_second_user: Dict[str, Dict[str, str]],
+    create_follow: None,
+) -> None:
     """Test unfollow a user by username."""
 
     response_fake_user = client.delete(

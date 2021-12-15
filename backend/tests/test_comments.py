@@ -1,15 +1,19 @@
+from typing import Dict
+from sqlalchemy.orm.session import Session
+from starlette.responses import Response
+from starlette.testclient import TestClient
 from src.db.models import Comment
 from .schemas import check_content_comment
 
 
 def test_post_comment(
-    db,
-    client,
-    data_first_user,
-    token_first_user,
-    create_and_get_response_one_article,
-    data_comment,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    create_and_get_response_one_article: Response,
+    data_comment: Dict[str, Dict[str, str]],
+) -> None:
     """Test create a comment for an article. Auth is required."""
     response_fake_article = client.post(
         "/articles/fakeslugarticle/comments",
@@ -43,18 +47,17 @@ def test_post_comment(
 
 
 def test_select_comment(
-    db,
-    client,
-    data_second_user,
-    token_first_user,
-    token_second_user,
-    create_follow,
-    create_and_get_response_one_article,
-    data_comment,
-):
+    db: Session,
+    client: TestClient,
+    data_second_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    token_second_user: str,
+    create_follow: None,
+    create_and_get_response_one_article: Response,
+    data_comment: Dict[str, Dict[str, str]],
+) -> None:
     """Test create a comment for an article. Auth is required."""
     slug = create_and_get_response_one_article.json()["article"]["slug"]
-    # db.close()
     client.post(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_first_user}"},
@@ -93,14 +96,13 @@ def test_select_comment(
 
 
 def test_remove_comment(
-    db,
-    client,
-    data_second_user,
-    token_first_user,
-    token_second_user,
-    create_and_get_response_one_article,
-    data_comment,
-):
+    db: Session,
+    client: TestClient,
+    token_first_user: str,
+    token_second_user: str,
+    create_and_get_response_one_article: Response,
+    data_comment: Dict[str, Dict[str, str]],
+) -> None:
     """Test delete a comment for an article. Auth is required."""
     slug = create_and_get_response_one_article.json()["article"]["slug"]
     response_create_comment = client.post(

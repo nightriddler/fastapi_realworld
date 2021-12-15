@@ -1,15 +1,19 @@
+from typing import Dict, Tuple
+from sqlalchemy.orm.session import Session
+from starlette.responses import Response
+from starlette.testclient import TestClient
 from src.db.models import Favorite
 from .schemas import check_content_article
 
 
 def test_post_favorite(
-    db,
-    client,
-    data_first_user,
-    token_first_user,
-    data_first_article,
-    create_and_get_response_two_article,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    create_and_get_response_two_article: Tuple[Response],
+) -> None:
     """Test favorite an article. Auth is required."""
     first_article, second_article = create_and_get_response_two_article
     slug_first_article = first_article.json()["article"]["slug"]
@@ -53,14 +57,14 @@ def test_post_favorite(
 
 
 def test_remove_favorite(
-    db,
-    client,
-    data_first_user,
-    token_first_user,
-    data_first_article,
-    token_second_user,
-    create_and_get_response_two_article,
-):
+    db: Session,
+    client: TestClient,
+    data_first_user: Dict[str, Dict[str, str]],
+    token_first_user: str,
+    data_first_article: Dict[str, Dict[str, str]],
+    token_second_user: str,
+    create_and_get_response_two_article: Tuple[Response],
+) -> None:
     """Test unfavorite an article. Auth is required."""
     first_article, second_article = create_and_get_response_two_article
     slug_first_article = first_article.json()["article"]["slug"]

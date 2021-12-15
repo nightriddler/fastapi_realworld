@@ -1,10 +1,15 @@
+from typing import Dict
+from sqlalchemy.orm.session import Session
+from starlette.testclient import TestClient
 from src.db.models import User
 import json
 import copy
 from .schemas import check_content_user
 
 
-def test_user_create(client, db, data_first_user):
+def test_user_create(
+    db: Session, client: TestClient, data_first_user: Dict[str, Dict[str, str]]
+) -> None:
     """Create user test."""
     response = client.post("/users", json=data_first_user)
     count_user = db.query(User).count()
@@ -29,7 +34,9 @@ def test_user_create(client, db, data_first_user):
     assert count_user == 1, "A user with the same data is created."
 
 
-def test_login_user(add_first_user, client, data_first_user):
+def test_login_user(
+    client: TestClient, add_first_user: None, data_first_user: Dict[str, Dict[str, str]]
+) -> None:
     """Test login for existing user."""
     data_random = {
         "user": {
@@ -50,7 +57,11 @@ def test_login_user(add_first_user, client, data_first_user):
     ), "Authorization is not available to unregistered users."
 
 
-def test_current_user(token_first_user, client, data_first_user):
+def test_current_user(
+    client: TestClient,
+    token_first_user: str,
+    data_first_user: Dict[str, Dict[str, str]],
+) -> None:
     """Test gets the currently logged-in user. Auth requeired."""
     response = client.get(
         "/user", headers={"Authorization": f"Token {token_first_user}"}
@@ -65,9 +76,9 @@ def test_current_user(token_first_user, client, data_first_user):
     assert response_fake_token.status_code == 401, "Invalid token."
 
 
-def test_update_user(token_first_user, client):
+def test_update_user(client: TestClient, token_first_user: str) -> None:
     """Test updated user information for current user. Auth requeired."""
-    check = {
+    update_data = {
         "user": {
             "email": "update@fixture.com",
             "token": "update_token",
@@ -76,7 +87,7 @@ def test_update_user(token_first_user, client):
             "image": "update_url_image",
         }
     }
-    update_data_json = json.loads(json.dumps(check))
+    update_data_json = json.loads(json.dumps(update_data))
     response = client.put(
         "/user",
         headers={"Authorization": f"Token {token_first_user}"},
