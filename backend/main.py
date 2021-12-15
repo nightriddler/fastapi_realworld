@@ -7,7 +7,7 @@ from src.users.router import router_user
 from settings import config
 
 
-def create_app():
+def create_app() -> FastAPI:
 
     app = FastAPI()
     (engine, sessionmaker) = create_engine_app(config.sqlalchemy_db)
