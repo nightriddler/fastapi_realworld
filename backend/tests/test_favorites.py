@@ -1,8 +1,11 @@
 from typing import Dict, Tuple
+
 from sqlalchemy.orm.session import Session
 from starlette.responses import Response
 from starlette.testclient import TestClient
+
 from src.db.models import Favorite
+
 from .schemas import check_content_article
 
 
@@ -15,7 +18,7 @@ def test_post_favorite(
     create_and_get_response_two_article: Tuple[Response],
 ) -> None:
     """Test favorite an article. Auth is required."""
-    first_article, second_article = create_and_get_response_two_article
+    first_article, _ = create_and_get_response_two_article
     slug_first_article = first_article.json()["article"]["slug"]
 
     response_withot_auth = client.post(
@@ -66,7 +69,7 @@ def test_remove_favorite(
     create_and_get_response_two_article: Tuple[Response],
 ) -> None:
     """Test unfavorite an article. Auth is required."""
-    first_article, second_article = create_and_get_response_two_article
+    first_article, _ = create_and_get_response_two_article
     slug_first_article = first_article.json()["article"]["slug"]
     client.post(
         f"/articles/{slug_first_article}/favorite",

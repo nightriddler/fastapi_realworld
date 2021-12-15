@@ -1,7 +1,10 @@
 from typing import Dict
+
 from sqlalchemy.orm.session import Session
 from starlette.testclient import TestClient
+
 from src.db.models import Follow
+
 from .schemas import check_content_profile
 
 

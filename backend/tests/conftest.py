@@ -2,13 +2,14 @@ from typing import Dict, List, Tuple
 
 import pytest
 from fastapi.testclient import TestClient
-from settings import config
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.session import Session
+from starlette.responses import Response
+
+from settings import config
 from src.db.database import get_db
 from src.db.models import Tag
-from starlette.responses import Response
 
 from ..main import app
 

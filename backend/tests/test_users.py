@@ -1,9 +1,12 @@
+import copy
+import json
 from typing import Dict
+
 from sqlalchemy.orm.session import Session
 from starlette.testclient import TestClient
+
 from src.db.models import User
-import json
-import copy
+
 from .schemas import check_content_user
 
 

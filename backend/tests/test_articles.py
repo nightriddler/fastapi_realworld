@@ -1,9 +1,12 @@
 from typing import Dict, List, Tuple
+
 from slugify import slugify
 from sqlalchemy.orm.session import Session
 from starlette.responses import Response
 from starlette.testclient import TestClient
+
 from src.db.models import Article, Tag
+
 from .schemas import check_content_article
 
 
@@ -88,8 +91,8 @@ def test_get_articles(
     """Test get most recent articles globally.
     Use query parameters to filter results. Auth is optional."""
 
-    first_article, second_article = create_and_get_response_two_article
-    first_tag, second_tag = create_and_get_tags
+    first_article, _ = create_and_get_response_two_article
+    _, second_tag = create_and_get_tags
 
     count_articles = db.query(Article).count()
     assert count_articles == 2, "The articles was not saved in the database."

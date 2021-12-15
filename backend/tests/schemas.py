@@ -1,7 +1,12 @@
 import datetime
+from typing import Dict
 
 
-def check_content_article(content, article, author_article):
+def check_content_article(
+    content: Dict[str, Dict[str, str]],
+    article: Dict[str, Dict[str, str]],
+    author_article: Dict[str, Dict[str, str]],
+) -> None:
     """Checking the form of the request response."""
     assert isinstance(content, dict)
     assert isinstance(content["slug"], str)
@@ -26,7 +31,11 @@ def check_content_article(content, article, author_article):
     assert isinstance(content["author"]["following"], bool)
 
 
-def check_content_comment(content, data_comment, data_user):
+def check_content_comment(
+    content: Dict[str, Dict[str, str]],
+    data_comment: Dict[str, Dict[str, str]],
+    data_user: Dict[str, Dict[str, str]],
+) -> None:
     """Checking the form of the request response."""
     assert isinstance(content, dict)
     assert isinstance(content["id"], int)
@@ -46,7 +55,9 @@ def check_content_comment(content, data_comment, data_user):
     assert isinstance(content["author"]["following"], bool)
 
 
-def check_content_profile(content, following):
+def check_content_profile(
+    content: Dict[str, str], following: Dict[str, Dict[str, str]]
+) -> None:
     """Checking the form of the request response."""
     assert content["username"] == following["user"]["username"]
     assert isinstance(content["bio"], str)
@@ -54,7 +65,9 @@ def check_content_profile(content, following):
     assert isinstance(content["following"], bool)
 
 
-def check_content_user(content, user):
+def check_content_user(
+    content: Dict[str, str], user: Dict[str, Dict[str, str]]
+) -> None:
     """Checking the form of the request response."""
     assert content["email"] == user["user"]["email"]
     assert content["username"] == user["user"]["username"]
