@@ -1,57 +1,67 @@
-from typing import Dict
+from typing import AsyncGenerator, Dict
 
-from sqlalchemy.orm.session import Session
+import pytest
+from sqlalchemy import func
+from sqlalchemy.ext.asyncio.session import AsyncSession
 from starlette.responses import Response
-from starlette.testclient import TestClient
 
 from src.db.models import Comment
 
 from .schemas import check_content_comment
 
+pytestmark = pytest.mark.asyncio
 
-def test_post_comment(
-    db: Session,
-    client: TestClient,
+
+async def test_post_comment(
+    db: AsyncSession,
+    client: AsyncGenerator,
     data_first_user: Dict[str, Dict[str, str]],
     token_first_user: str,
     create_and_get_response_one_article: Response,
     data_comment: Dict[str, Dict[str, str]],
 ) -> None:
-    """Test create a comment for an article. Auth is required."""
-    response_fake_article = client.post(
+    """
+    Test create a comment for an article.
+    Auth is required.
+    """
+    response_fake_article = await client.post(
         "/articles/fakeslugarticle/comments",
         headers={"Authorization": f"Token {token_first_user}"},
         json=data_comment,
     )
-    count_comment = db.query(Comment).count()
     assert response_fake_article.status_code == 400, "Expected 400 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
     assert (
         count_comment == 0
     ), "Added a comment to a non-existent article in the database."
 
     slug = create_and_get_response_one_article.json()["article"]["slug"]
-    response_without_auth = client.post(
+    response_without_auth = await client.post(
         f"/articles/{slug}/comments",
         json=data_comment,
     )
     assert response_without_auth.status_code == 401, "Expected 401 code."
 
-    response = client.post(
+    response = await client.post(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_first_user}"},
         json=data_comment,
     )
-    count_comment = db.query(Comment).count()
+    assert response.status_code == 200, "Expected 200 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
 
     content = response.json()
-    assert response.status_code == 200, "Expected 200 code."
     assert count_comment == 1, "Comment not added in database."
     check_content_comment(content["comment"], data_comment, data_first_user)
 
 
-def test_select_comment(
-    db: Session,
-    client: TestClient,
+async def test_select_comment(
+    db: AsyncSession,
+    client: AsyncGenerator,
     data_second_user: Dict[str, Dict[str, str]],
     token_first_user: str,
     token_second_user: str,
@@ -59,35 +69,40 @@ def test_select_comment(
     create_and_get_response_one_article: Response,
     data_comment: Dict[str, Dict[str, str]],
 ) -> None:
-    """Test create a comment for an article. Auth is required."""
+    """
+    Test create a comment for an article.
+    Auth is required.
+    """
     slug = create_and_get_response_one_article.json()["article"]["slug"]
-    client.post(
+    await client.post(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_first_user}"},
         json=data_comment,
     )
-    db.close()
+    await db.close()
     data_comment["comment"]["body"] = "second_comment"
-    client.post(
+    await client.post(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_second_user}"},
         json=data_comment,
     )
-
-    response_fake_article = client.get(
+    await db.close()
+    response_fake_article = await client.get(
         "/articles/fakeslugarticle/comments",
         headers={"Authorization": f"Token {token_first_user}"},
     )
     assert response_fake_article.status_code == 400, "Expected 400 code."
 
-    response = client.get(
+    response = await client.get(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_first_user}"},
     )
-    count_comment = db.query(Comment).count()
+    assert response.status_code == 200, "Expected 200 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
 
     content = response.json()
-    assert response.status_code == 200, "Expected 200 code."
     assert (
         len(content["comments"]) == 2
     ), "Not all comments on an article are displayed."
@@ -98,55 +113,64 @@ def test_select_comment(
     ), "Subscription status is not displayed in the 'following' field"
 
 
-def test_remove_comment(
-    db: Session,
-    client: TestClient,
+async def test_remove_comment(
+    db: AsyncSession,
+    client: AsyncGenerator,
     token_first_user: str,
     token_second_user: str,
     create_and_get_response_one_article: Response,
     data_comment: Dict[str, Dict[str, str]],
 ) -> None:
-    """Test delete a comment for an article. Auth is required."""
+    """
+    Test delete a comment for an article.
+    Auth is required.
+    """
     slug = create_and_get_response_one_article.json()["article"]["slug"]
-    response_create_comment = client.post(
+    response_create_comment = await client.post(
         f"/articles/{slug}/comments",
         headers={"Authorization": f"Token {token_first_user}"},
         json=data_comment,
     )
 
     comment_id = response_create_comment.json()["comment"]["id"]
-
-    response_fake_article = client.delete(
+    await db.close()
+    response_fake_article = await client.delete(
         f"/articles/fakeslugarticle/comments/{comment_id}",
         headers={"Authorization": f"Token {token_first_user}"},
     )
-    count_comment = db.query(Comment).count()
     assert response_fake_article.status_code == 400, "Expected 400 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
     assert (
         count_comment == 1
     ), "Removed a comment from the database for an article that does not exist."
 
-    response_fake_comment_id = client.delete(
+    response_fake_comment_id = await client.delete(
         f"/articles/{slug}/comments/2",
         headers={"Authorization": f"Token {token_first_user}"},
     )
-    count_comment = db.query(Comment).count()
     assert response_fake_comment_id.status_code == 400, "Expected 400 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
     assert (
         count_comment == 1
     ), "Removed a comment from the database with an incorrect id."
 
-    response_another_user = client.delete(
+    response_another_user = await client.delete(
         f"/articles/{slug}/comments/{comment_id}",
         headers={"Authorization": f"Token {token_second_user}"},
     )
-    count_comment = db.query(Comment).count()
     assert response_another_user.status_code == 400, "Expected 400 code."
+
+    stmt = await db.execute(func.count(Comment.id))
+    count_comment = stmt.scalar()
     assert (
         count_comment == 1
     ), "Removed a comment from the database when queried not the author of the comment."
 
-    response = client.delete(
+    response = await client.delete(
         f"/articles/{slug}/comments/{comment_id}",
         headers={"Authorization": f"Token {token_first_user}"},
     )

@@ -2,15 +2,15 @@ from pydantic import BaseSettings
 from pydantic.networks import AnyUrl
 
 
-class PostgresDsnPsycopg(AnyUrl):
-    allowed_schemes = {"postgresql+psycopg2"}
+class PostgresDsnAsyncpg(AnyUrl):
+    allowed_schemes = {"postgresql+asyncpg"}
     user_required = True
 
 
 class Settings(BaseSettings):
     SECRET: str
     ALGORITHM: str = "HS256"
-    DATABASE_URL: PostgresDsnPsycopg = None
+    DATABASE_URL: PostgresDsnAsyncpg = None
     API_KEY_SCHEME: str = "Token"
     API_KEY_NAME: str = "Authorization"
     DESCRIPTION_TOKEN: str = """

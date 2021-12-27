@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from fastapi.params import Depends
 from sqlalchemy import delete, update
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from src.db.database import get_db
@@ -9,33 +10,46 @@ from src.db.models import Follow, User
 from src.users import authorize, schemas
 
 
-def get_curr_user_by_token(
-    db: Session = Depends(get_db), token: str = Depends(authorize.check_token)
+async def get_curr_user_by_token(
+    db: AsyncSession = Depends(get_db), token: str = Depends(authorize.check_token)
 ) -> User:
-    """Getting a User model from a token and checking that the user exists."""
-    user = get_user_by_token(db, token)
+    """
+    Getting a User model from a token and checking that the user exists.
+    """
+    user = await get_user_by_token(db, token)
     if not user:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Not authorized")
-    return get_user_by_token(db, token)
+    return user
 
 
-def get_user_by_token(db: Session, token: int) -> User:
-    """Get User model by token."""
-    return db.query(User).filter(User.token == token).first()
+async def get_user_by_token(db: AsyncSession, token: int) -> User:
+    """
+    Get User model by token.
+    """
+    user = await db.execute(select(User).filter(User.token == token))
+    return user.scalars().first()
 
 
-def get_user_by_username(db: Session, username: str) -> User:
-    """Get User model by username."""
-    return db.query(User).filter(User.username == username).first()
+async def get_user_by_username(db: AsyncSession, username: str) -> User:
+    """
+    Get User model by username.
+    """
+    user = await db.execute(select(User).filter(User.username == username))
+    return user.scalars().first()
 
 
-def get_user_by_email(db: Session, email: str) -> User:
-    """Get User model by email."""
-    return db.query(User).filter(User.email == email).first()
+async def get_user_by_email(db: AsyncSession, email: str) -> User:
+    """
+    Get User model by email.
+    """
+    user = await db.execute(select(User).filter(User.email == email))
+    return user.scalars().first()
 
 
-def create_user(db: Session, user: schemas.NewUserRequest) -> User:
-    """Create and return a created User model."""
+async def create_user(db: AsyncSession, user: schemas.NewUserRequest) -> User:
+    """
+    Create and return a created User model.
+    """
     db_user = User(
         token=authorize.encode_jwt(user.user.email, user.user.password),
         username=user.user.username,
@@ -45,48 +59,55 @@ def create_user(db: Session, user: schemas.NewUserRequest) -> User:
         image="default",
     )
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    ###
-    db.close()
+    await db.commit()
     return db_user
 
 
-def change_user(
-    db: Session, user: schemas.UserResponse, data: schemas.UserResponse
+async def change_user(
+    db: AsyncSession, user: schemas.UserResponse, data: schemas.UserResponse
 ) -> User:
-    """Update and return User model."""
+    """
+    Update and return User model.
+    """
     up_user = (
         update(User)
         .where(User.token == user.token)
         .values(**data.user.dict(exclude_unset=True))
     )
-    db.execute(up_user)
-    db.commit()
-    curr_user = db.query(User).filter(User.token == user.token).first()
-    return curr_user
+    await db.execute(up_user)
+    await db.commit()
+    return user
 
 
-def create_subscribe(db: Session, user_username: str, author_username: str):
-    """Create Follow model by user and author username.
-    The function does not return anything."""
+async def create_subscribe(db: AsyncSession, user_username: str, author_username: str):
+    """
+    Create Follow model by user and author username.
+    The function does not return anything.
+    """
     db_subscribe = Follow(user=user_username, author=author_username)
     db.add(db_subscribe)
-    db.commit()
+    await db.commit()
 
 
-def delete_subscribe(db: Session, user_username: str, author_username: str):
-    """Delete Follow model by user and author username.
-    The function does not return anything."""
+async def delete_subscribe(db: AsyncSession, user_username: str, author_username: str):
+    """
+    Delete Follow model by user and author username.
+    The function does not return anything.
+    """
     subscribe = delete(Follow).where(
         Follow.user == user_username, Follow.author == author_username
     )
-    db.execute(subscribe)
-    db.commit()
+    await db.execute(subscribe)
+    await db.commit()
 
 
-def check_subscribe(db: Session, follower: str, following: str) -> bool:
-    """Checking Follow model by user and author username.
-    Returns True if Follow model is found."""
-    check = db.query(Follow).filter(Follow.user == follower, Follow.author == following)
-    return db.query(check.exists()).scalar()
+async def check_subscribe(db: AsyncSession, follower: str, following: str) -> bool:
+    """
+    Checking Follow model by user and author username.
+    Returns True if Follow model is found.
+    """
+    check = await db.execute(
+        select(Follow).filter(Follow.user == follower, Follow.author == following)
+    )
+    check = check.scalars().first()
+    return True if check else False

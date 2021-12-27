@@ -33,7 +33,7 @@ jobs:
     - name: Run tests and collect coverage
       env:
         SECRET: ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
-        DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+        DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
       run: |
         cd backend/
         alembic upgrade head

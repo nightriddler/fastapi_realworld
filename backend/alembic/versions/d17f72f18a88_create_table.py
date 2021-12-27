@@ -5,9 +5,9 @@ Revises:
 Create Date: 2021-12-13 12:16:54.682681
 
 """
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "d17f72f18a88"
 down_revision = None
@@ -88,17 +88,9 @@ def upgrade():
         sa.ForeignKeyConstraint(["user"], ["users.username"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_table(
-        "user_article",
-        sa.Column("user_id", sa.Integer(), nullable=True),
-        sa.Column("article_id", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(["article_id"], ["articles.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-    )
 
 
 def downgrade():
-    op.drop_table("user_article")
     op.drop_table("favorites")
     op.drop_table("comments")
     op.drop_table("article_tag")

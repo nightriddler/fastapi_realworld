@@ -16,16 +16,26 @@
 
 Implementation for [RealWorld](https://github.com/gothinkster/realworld) project using FastAPI and SQLAlchemy.
 
+```
+fastapi
+pydantic
+sqlalchemy
+alembic
+asyncpg
+asyncio
+pytest
+httpx
+```
 
-## Project deployment in Docker
+## Deployment in Docker
 1. Clone repository 
 ```
 git clone https://github.com/nightriddler/fastapi_realworld.git
 ```
 2. In the root folder create a file `.env` with environment variables (or rename the file `.env.example` to `.env`)::
 ```
-SECRET=6dbb34c07663c6bc91ab4e22efce14def95cc2d0b9e397097facec414206181e
-DATABASE_URL=postgresql+psycopg2://postgres:postgres@db/postgres
+SECRET=secret-key
+DATABASE_URL=postgresql+asyncpg2://postgres:postgres@db/postgres
 ```
 You can generate your `SECRET` with the command (from the root): 
 ```
@@ -44,7 +54,7 @@ The pgAdmin panel is available:
 http://127.0.0.1:5050/
 ```
 
-## Testing
+## Testing in Docker
 Run the migration to test it:
 ```
 docker-compose exec web alembic upgrade head
@@ -54,7 +64,39 @@ And then, run the tests:
 docker-compose exec web python -m pytest
 ```
 
+## Deployment local
+1. Clone repository 
+```
+git clone https://github.com/nightriddler/fastapi_realworld.git
+```
+2. Create a virtual environment and activate it:
+```
+python -m venv venv
+source venv/Scripts/activate 
+```
+3. Install go to the backend folder and install the dependencies:
+```
+cd backend/
+pip install -r requirements.txt
+```
+4. Create a `.env` (you can use `.env.example`), with your `SECRET` and `DATABASE_URL` in the same backend folder.
 
+5. Run the migrations:
+```
+alembic head upgrade
+```
+6. Run the application:
+```
+uvicorn main:app --reload
+```
+7. The app will be available at:
+```
+http://127.0.0.1:8000/docs
+```
+8. Running tests:
+```
+python -m pytest
+```
 
 ## Documentation
 The documentation `/docs/openapi.yml` can be seen at https://editor.swagger.io/ and also when you start the project at `http://127.0.0.1:8000/docs/`.

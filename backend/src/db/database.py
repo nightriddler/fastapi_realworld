@@ -1,19 +1,34 @@
-from typing import Tuple
+from typing import AsyncGenerator, Tuple
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
 from starlette.requests import Request
 
 
-def create_engine_app(db_url) -> Tuple[Engine, sessionmaker]:
+def create_engine_app(db_url: str) -> Tuple[Engine, sessionmaker]:
     engine = create_engine(db_url)
     session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return engine, session
 
 
-def get_db(request: Request) -> Session:
+def create_engine_async_app(db_url: str) -> Tuple[AsyncEngine, AsyncSession]:
+    async_engine = create_async_engine(db_url, future=True, echo=True)
+    async_session = sessionmaker(
+        async_engine, expire_on_commit=False, class_=AsyncSession
+    )
+    return async_engine, async_session
+
+
+async def get_db(request: Request) -> AsyncGenerator:
     db = request.app.state.sessionmaker()
-    with db as database:
-        yield database
-        database.close()
+    try:
+        yield db
+    except SQLAlchemyError as ex:
+        await db.rollback()
+        raise ex
+    finally:
+        await db.close()

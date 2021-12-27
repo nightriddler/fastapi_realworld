@@ -7,7 +7,9 @@ def check_content_article(
     article: Dict[str, Dict[str, str]],
     author_article: Dict[str, Dict[str, str]],
 ) -> None:
-    """Checking the form of the request response."""
+    """
+    Checking the form of the request response.
+    """
     assert isinstance(content, dict)
     assert isinstance(content["slug"], str)
     assert content["title"] == article["article"]["title"]
@@ -36,7 +38,9 @@ def check_content_comment(
     data_comment: Dict[str, Dict[str, str]],
     data_user: Dict[str, Dict[str, str]],
 ) -> None:
-    """Checking the form of the request response."""
+    """
+    Checking the form of the request response.
+    """
     assert isinstance(content, dict)
     assert isinstance(content["id"], int)
     assert isinstance(
@@ -58,7 +62,9 @@ def check_content_comment(
 def check_content_profile(
     content: Dict[str, str], following: Dict[str, Dict[str, str]]
 ) -> None:
-    """Checking the form of the request response."""
+    """
+    Checking the form of the request response.
+    """
     assert content["username"] == following["user"]["username"]
     assert isinstance(content["bio"], str)
     assert isinstance(content["image"], str)
@@ -68,7 +74,9 @@ def check_content_profile(
 def check_content_user(
     content: Dict[str, str], user: Dict[str, Dict[str, str]]
 ) -> None:
-    """Checking the form of the request response."""
+    """
+    Checking the form of the request response.
+    """
     assert content["email"] == user["user"]["email"]
     assert content["username"] == user["user"]["username"]
     assert isinstance(content["token"], str)

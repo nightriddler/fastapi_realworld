@@ -1,54 +1,59 @@
 from typing import List
 
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from src.db.models import Article, Favorite, User
 
 
-def check_favorite(db: Session, slug: str, username: str) -> bool:
-    check = db.query(Favorite).filter(
-        Favorite.user == username, Favorite.article == slug
+async def check_favorite(db: AsyncSession, slug: str, username: str) -> bool:
+    """
+    Checking an article in the user's favorites.
+    """
+    stmt = await db.execute(
+        select(Favorite).filter(Favorite.user == username, Favorite.article == slug)
     )
-    return db.query(check.exists()).scalar()
+    favorite = stmt.scalars().first()
+    return True if favorite else False
 
 
-def add_favorited(
-    db: Session, articles: List[Article], current_user: User
+async def add_favorited(
+    db: AsyncSession, articles: List[Article], current_user: User
 ) -> List[Article]:
-    """Change field "favorited" in Article pydantic model for articles.
-    If there is authorizatrion."""
-    favorites_user = (
-        db.query(Favorite).where(Favorite.user == current_user.username).all()
+    """
+    Change field "favorited" in Article pydantic model for articles.
+    If there is authorizatrion.
+    """
+    stmt = await db.execute(
+        select(Favorite).where(Favorite.user == current_user.username)
     )
+    favorites_user = stmt.scalars().all()
+    await db.close()
     favorites_user_article = {
         favorite.article: favorite.user for favorite in favorites_user
     }
-    # >>> {'444': 'first', '777': 'first', '555': 'first', '999': 'first'}
-
-    # Второй вариант. Мне кажется он менее оптимальный.
-    # articles_favorites = db.query(Favorite).all()
-    # favorites = [article.article for article in articles_favorites]
-    # count_favorite_articles = Counter(favorites)
     for article in articles:
         if article.slug in favorites_user_article:
             article.favorited = True
     return articles
 
 
-def add_tags_authors_favorites_time_in_articles(
-    db: Session, articles: List[Article]
+async def add_tags_authors_favorites_time_in_articles(
+    db: AsyncSession, articles: List[Article]
 ) -> List[Article]:
-    """Add tags, authors, created and updated time
-    in articles for Article pydantic model."""
-    favorites = (
-        db.query(Favorite.article, func.count(Favorite.article))
-        .group_by(Favorite.article)
-        .all()
+    """
+    Add tags, authors, created and updated time
+    in articles for Article pydantic model.
+    """
+    stmt = await db.execute(
+        select(Favorite.article, func.count(Favorite.article)).group_by(
+            Favorite.article
+        )
     )
-    # >>> [('444', 2), ('222', 1), ('777', 1)]
+    favorites = stmt.all()
+    await db.close()
     count_favorite_articles = {article[0]: article[1] for article in favorites}
-    # >>> {'444': 2, '222': 1, '777': 1}
     for article in articles:
         if not isinstance(article.author, User):
             article.author = article.authors
@@ -58,3 +63,13 @@ def add_tags_authors_favorites_time_in_articles(
         article.createdAt = article.created_at
         article.updatedAt = article.updated_at
     return articles
+
+
+async def get_article(db: AsyncSession, slug: str) -> bool:
+    """
+    Get the article by slug.
+    """
+    stmt = await db.execute(select(Article).filter(Article.slug == slug))
+    article = stmt.scalars().first()
+    await db.close()
+    return article

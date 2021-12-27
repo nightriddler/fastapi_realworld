@@ -1,17 +1,17 @@
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.schema import Table
 from sqlalchemy.sql.sqltypes import DateTime
-from sqlalchemy.ext.declarative import declarative_base
-
 
 Base = declarative_base()
 
 
 class User(Base):
     __tablename__ = "users"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     token = Column(String, unique=True)
@@ -21,9 +21,21 @@ class User(Base):
     image = Column(String(250))
     password = Column(String(250))
 
-    articles = relationship("Article", cascade="all,delete-orphan", backref="authors")
-    comments = relationship("Comment", cascade="all,delete-orphan", backref="authors")
-    favorites = relationship("Favorite", cascade="all,delete-orphan", backref="users")
+    articles = relationship(
+        "Article",
+        cascade="all,delete-orphan",
+        backref="authors",
+    )
+    comments = relationship(
+        "Comment",
+        cascade="all,delete-orphan",
+        backref="authors",
+    )
+    favorites = relationship(
+        "Favorite",
+        cascade="all,delete-orphan",
+        backref="users",
+    )
 
     def __repr__(self):
         return f"User(email={self.email},username={self.username})"
@@ -31,6 +43,7 @@ class User(Base):
 
 class Follow(Base):
     __tablename__ = "followers"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     user = Column(String(50), ForeignKey("users.username", ondelete="CASCADE"))
@@ -60,16 +73,9 @@ article_tag_table = Table(
 )
 
 
-user_article_table = Table(
-    "user_article",
-    Base.metadata,
-    Column("user_id", ForeignKey("users.id", ondelete="CASCADE")),
-    Column("article_id", ForeignKey("articles.id", ondelete="CASCADE")),
-)
-
-
 class Article(Base):
     __tablename__ = "articles"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(100), unique=True)
@@ -78,18 +84,30 @@ class Article(Base):
     body = Column(Text)
     author = Column(String(50), ForeignKey("users.username", ondelete="CASCADE"))
 
-    created_at = Column(DateTime, default=datetime.now().isoformat())
+    created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(
         DateTime,
-        onupdate=datetime.now().isoformat(),
-        default=datetime.now().isoformat(),
+        onupdate=datetime.now(),
+        default=datetime.now(),
     )
 
-    tag = relationship("Tag", secondary=article_tag_table, backref="articles")
+    tag = relationship(
+        "Tag",
+        secondary=article_tag_table,
+        backref="articles",
+    )
 
-    favorite = relationship("Favorite", cascade="all,delete-orphan", backref="articles")
+    favorite = relationship(
+        "Favorite",
+        cascade="all,delete-orphan",
+        backref="articles",
+    )
 
-    comments = relationship("Comment", cascade="all,delete-orphan", backref="articles")
+    comments = relationship(
+        "Comment",
+        cascade="all,delete-orphan",
+        backref="articles",
+    )
 
     def __repr__(self):
         return f"Article(slug={self.slug},title={self.title})"
@@ -97,6 +115,7 @@ class Article(Base):
 
 class Tag(Base):
     __tablename__ = "tags"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
@@ -107,6 +126,7 @@ class Tag(Base):
 
 class Favorite(Base):
     __tablename__ = "favorites"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     user = Column(String(50), ForeignKey("users.username", ondelete="CASCADE"))
@@ -118,17 +138,18 @@ class Favorite(Base):
 
 class Comment(Base):
     __tablename__ = "comments"
+    __mapper_args__ = {"eager_defaults": True}
 
     id = Column(Integer, primary_key=True)
     body = Column(Text)
     author = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     article = Column(String(100), ForeignKey("articles.slug", ondelete="CASCADE"))
 
-    created_at = Column(DateTime, default=datetime.now().isoformat())
+    created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(
         DateTime,
-        onupdate=datetime.now().isoformat(),
-        default=datetime.now().isoformat(),
+        onupdate=datetime.now(),
+        default=datetime.now(),
     )
 
     def __repr__(self):
