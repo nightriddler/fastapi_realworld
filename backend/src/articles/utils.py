@@ -71,5 +71,4 @@ async def get_article(db: AsyncSession, slug: str) -> bool:
     """
     stmt = await db.execute(select(Article).filter(Article.slug == slug))
     article = stmt.scalars().first()
-    await db.close()
     return article
