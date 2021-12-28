@@ -1,18 +1,10 @@
 from typing import AsyncGenerator, Tuple
 
-from sqlalchemy import create_engine
-from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from sqlalchemy.orm import sessionmaker
 from starlette.requests import Request
-
-
-def create_engine_app(db_url: str) -> Tuple[Engine, sessionmaker]:
-    engine = create_engine(db_url)
-    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    return engine, session
 
 
 def create_engine_async_app(db_url: str) -> Tuple[AsyncEngine, AsyncSession]:
