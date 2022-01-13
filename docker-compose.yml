@@ -1,6 +1,11 @@
 version: '3.8'
 services:
 
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+
   db:
     container_name: postgresql_db
     image: postgres:13.4
@@ -35,8 +40,9 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - redis
     env_file:
       - ./.env
 
 volumes:
-  postgres_data:
+  postgres_data: null

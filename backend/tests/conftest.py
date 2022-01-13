@@ -6,12 +6,11 @@ from typing import AsyncGenerator, Callable, Dict, Generator, List, Tuple
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import Response
-
 from settings import config
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.database import create_engine_async_app
 from src.db.models import Tag
+from starlette.responses import Response
 
 
 @pytest.fixture(scope="session")
@@ -21,11 +20,20 @@ def event_loop() -> Generator:
     """
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
-    loop.close()
+    loop.stop()
 
 
 @pytest.fixture(scope="function")
-async def db() -> AsyncSession:
+async def flush_redis():
+    """
+    Remove Redis database.
+    """
+    yield
+    await config.redis_db.flushdb()
+
+
+@pytest.fixture(scope="function")
+async def db(flush_redis) -> AsyncSession:
     engine, async_session = create_engine_async_app(config.sqlalchemy_db)
     async with engine.begin() as connection:
         async with async_session(bind=connection) as session:

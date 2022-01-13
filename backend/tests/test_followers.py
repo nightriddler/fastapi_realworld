@@ -3,7 +3,6 @@ from typing import AsyncGenerator, Dict
 import pytest
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio.session import AsyncSession
-
 from src.db.models import Follow
 
 from .schemas import check_content_profile

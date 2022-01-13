@@ -1,13 +1,13 @@
 from typing import AsyncGenerator, Dict, List, Tuple
 
 import pytest
+from settings import config
 from slugify import slugify
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio.session import AsyncSession
+from src.db.models import Article, Tag
 from starlette.responses import Response
 from starlette.testclient import TestClient
-
-from src.db.models import Article, Tag
 
 from .schemas import check_content_article
 
@@ -296,9 +296,24 @@ async def test_remove_article(
     Test delete an article.
     Auth is required.
     """
+    first_article = create_and_get_response_one_article
+    slug_first_article = first_article.json()["article"]["slug"]
+
+    await client.post(
+        f"/articles/{slug_first_article}/favorite",
+        headers={"Authorization": f"Token {token_first_user}"},
+    )
+
     stmt = await db.execute(func.count(Article.id))
     count_articles = stmt.scalar()
-    assert count_articles == 1, "The article was not found in the database."
+
+    assert count_articles == 1, "The article was not add in the database."
+    count_favorites_from_redis = await config.redis_db.hget(
+        "count_favorites", slugify(data_first_article["article"]["title"])
+    )
+    assert count_articles == int(
+        count_favorites_from_redis
+    ), "The article was not add in redis cache."
 
     slug_article = slugify(data_first_article["article"]["title"])
 
@@ -331,3 +346,14 @@ async def test_remove_article(
     stmt = await db.execute(func.count(Article.id))
     count_articles = stmt.scalar()
     assert count_articles == 0, "The article is not removed from the database."
+
+    assert count_articles == 0, "The article was not removed in the database."
+    count_favorites_from_redis = await config.redis_db.hget(
+        "count_favorites", slugify(data_first_article["article"]["title"])
+    )
+    count_favorites_from_redis = (
+        0 if not count_favorites_from_redis else int(count_favorites_from_redis)
+    )
+    assert (
+        count_articles == count_favorites_from_redis
+    ), "The article was not add in redis cache."

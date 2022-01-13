@@ -1,8 +1,10 @@
+aioredis==2.0.1
 alembic==1.7.4
 anyio==3.3.4
 asgi-lifespan==1.0.1
 asgiref==3.4.1
 async-generator==1.10
+async-timeout==4.0.2
 asyncpg==0.25.0
 atomicwrites==1.4.0
 attrs==21.2.0

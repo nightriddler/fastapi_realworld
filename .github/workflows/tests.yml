@@ -8,6 +8,17 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
       postgres:
         image: postgres:11.5-alpine
         env:
@@ -16,7 +27,11 @@ jobs:
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
     - uses: actions/checkout@v2
@@ -32,8 +47,9 @@ jobs:
 
     - name: Run tests and collect coverage
       env:
-        SECRET: ff4c1a100618949dfb5cf50ecf05cba7ab6431f90ab045fe
+        SECRET: $(openssl rand -hex 32)
         DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+        REDIS_URL: redis://redis:6379
       run: |
         cd backend/
         alembic upgrade head

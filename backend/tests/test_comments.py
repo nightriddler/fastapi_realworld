@@ -3,9 +3,8 @@ from typing import AsyncGenerator, Dict
 import pytest
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from starlette.responses import Response
-
 from src.db.models import Comment
+from starlette.responses import Response
 
 from .schemas import check_content_comment
 

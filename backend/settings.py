@@ -1,3 +1,5 @@
+import aioredis
+from aioredis.client import Redis
 from pydantic import BaseSettings
 from pydantic.networks import AnyUrl
 
@@ -22,10 +24,17 @@ class Settings(BaseSettings):
 
     Token xxxxxx.yyyyyyy.zzzzzz
     """
+    REDIS_URL: str
 
     @property
     def sqlalchemy_db(self) -> str:
         return str(self.DATABASE_URL)
+
+    @property
+    def redis_db(self) -> Redis:
+        return aioredis.from_url(
+            config.REDIS_URL, encoding="utf-8", decode_responses=True
+        )
 
     class Config:
         env_file = ".env"

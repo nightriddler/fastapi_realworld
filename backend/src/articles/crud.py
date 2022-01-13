@@ -1,11 +1,11 @@
 from typing import List, Optional
 
+from settings import config
 from slugify import slugify
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-
 from src.articles import schemas
 from src.articles.utils import (
     add_favorited,
@@ -52,7 +52,7 @@ async def get_articles_auth_or_not(
 
     stmt = await db.execute(query)
     articles = stmt.scalars().unique().all()
-
+    await db.close()
     articles = await add_tags_authors_favorites_time_in_articles(db, articles)
 
     if current_user:
@@ -180,6 +180,7 @@ async def delete_article(db: AsyncSession, slug: str):
     )
     await db.execute(del_article)
     await db.commit()
+    await config.redis_db.hdel("count_favorites", slug)
 
 
 async def get_comments(
@@ -252,6 +253,8 @@ async def create_favorite(db: AsyncSession, slug: str, user: User):
     favorite = Favorite(article=slug, user=user.username)
     db.add(favorite)
     await db.commit()
+    await config.redis_db.hset("favorites", slug, user.username)
+    await config.redis_db.hincrby("count_favorites", slug, 1)
 
 
 async def delete_favorite(db: AsyncSession, slug: str, user: User):
@@ -265,6 +268,8 @@ async def delete_favorite(db: AsyncSession, slug: str, user: User):
     )
     await db.execute(del_favorite)
     await db.commit()
+    await config.redis_db.hdel("favorites", slug)
+    await config.redis_db.hincrby("count_favorites", slug, -1)
 
 
 async def select_tags(db: AsyncSession) -> List[str]:

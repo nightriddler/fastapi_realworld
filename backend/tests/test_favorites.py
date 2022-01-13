@@ -1,11 +1,12 @@
 from typing import AsyncGenerator, Dict, Tuple
 
 import pytest
+from settings import config
+from slugify import slugify
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from starlette.responses import Response
-
 from src.db.models import Favorite
+from starlette.responses import Response
 
 from .schemas import check_content_article
 
@@ -47,6 +48,8 @@ async def test_post_favorite(
     count_favorites = stmt.scalar()
 
     check_content_article(content["article"], data_first_article, data_first_user)
+
+    assert response.status_code == 200, "Expected 200 code."
     assert (
         content["article"]["favorited"] is True
     ), "The status of the favorite article is not displayed in the favorited field."
@@ -54,6 +57,13 @@ async def test_post_favorite(
         content["article"]["favoritesCount"] == 1
     ), "Adding the article to favorites did not change the 'favoritesCount' field."
     assert count_favorites == 1, "The favorite article was not added to the database."
+
+    count_favorites_from_redis = await config.redis_db.hget(
+        "count_favorites", slugify(data_first_article["article"]["title"])
+    )
+    assert count_favorites == int(
+        count_favorites_from_redis
+    ), "The article was not saved in redis cache."
 
     response_double = await client.post(
         f"/articles/{slug_first_article}/favorite",
@@ -133,6 +143,13 @@ async def test_remove_favorite(
 
     check_content_article(content["article"], data_first_article, data_first_user)
     assert count_favorites == 0, "The favorite article was not deleted to the database."
+
+    count_favorites_from_redis = await config.redis_db.hget(
+        "count_favorites", slugify(data_first_article["article"]["title"])
+    )
+    assert count_favorites == int(
+        count_favorites_from_redis
+    ), "The article was not delete in redis cache."
 
     response_double = await client.delete(
         f"/articles/{slug_first_article}/favorite",

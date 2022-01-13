@@ -1,9 +1,9 @@
 from typing import List
 
+from settings import config
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from src.db.models import Article, Favorite, User
 
 
@@ -25,14 +25,21 @@ async def add_favorited(
     Change field "favorited" in Article pydantic model for articles.
     If there is authorizatrion.
     """
-    stmt = await db.execute(
-        select(Favorite).where(Favorite.user == current_user.username)
-    )
-    favorites_user = stmt.scalars().all()
-    await db.close()
-    favorites_user_article = {
-        favorite.article: favorite.user for favorite in favorites_user
-    }
+    favorites_user_article = await config.redis_db.hgetall("favorites")
+    if not favorites_user_article:
+
+        stmt = await db.execute(
+            select(Favorite).where(Favorite.user == current_user.username)
+        )
+        favorites_user = stmt.scalars().all()
+        await db.close()
+
+        favorites_user_article = {
+            favorite.article: favorite.user for favorite in favorites_user
+        }
+        for article, user in favorites_user_article.items():
+            await config.redis_db.hset("favorites", article, user)
+
     for article in articles:
         if article.slug in favorites_user_article:
             article.favorited = True
@@ -46,14 +53,19 @@ async def add_tags_authors_favorites_time_in_articles(
     Add tags, authors, created and updated time
     in articles for Article pydantic model.
     """
-    stmt = await db.execute(
-        select(Favorite.article, func.count(Favorite.article)).group_by(
-            Favorite.article
+    count_favorite_articles = await config.redis_db.hgetall("count_favorites")
+    if not count_favorite_articles:
+        stmt = await db.execute(
+            select(Favorite.article, func.count(Favorite.article)).group_by(
+                Favorite.article
+            )
         )
-    )
-    favorites = stmt.all()
-    await db.close()
-    count_favorite_articles = {article[0]: article[1] for article in favorites}
+        favorites = stmt.all()
+        await db.close()
+        count_favorite_articles = {article[0]: article[1] for article in favorites}
+        for article, count in count_favorite_articles.items():
+            await config.redis_db.hset("count_favorites", article, count)
+
     for article in articles:
         if not isinstance(article.author, User):
             article.author = article.authors
@@ -65,7 +77,7 @@ async def add_tags_authors_favorites_time_in_articles(
     return articles
 
 
-async def get_article(db: AsyncSession, slug: str) -> bool:
+async def get_article(db: AsyncSession, slug: str) -> Article:
     """
     Get the article by slug.
     """
