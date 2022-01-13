@@ -16,6 +16,7 @@
 
 Implementation for [RealWorld](https://github.com/gothinkster/realworld) project using FastAPI and SQLAlchemy.
 
+Also:
 ```
 fastapi
 pydantic
@@ -23,9 +24,11 @@ sqlalchemy
 alembic
 asyncpg
 asyncio
+aioredis
 pytest
 httpx
 ```
+> Redis for cache favorite articles and count favorite articles.
 
 ## Deployment in Docker
 1. Clone repository 
@@ -36,6 +39,7 @@ git clone https://github.com/nightriddler/fastapi_realworld.git
 ```
 SECRET=secret-key
 DATABASE_URL=postgresql+asyncpg2://postgres:postgres@db/postgres
+REDIS_URL=redis://redis:6379
 ```
 You can generate your `SECRET` with the command (from the root): 
 ```
