@@ -49,7 +49,7 @@ jobs:
       env:
         SECRET: $(openssl rand -hex 32)
         DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
-        REDIS_URL: redis://redis:6379
+        REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}
       run: |
         cd backend/
         alembic upgrade head
